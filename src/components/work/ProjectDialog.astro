@@ -5,7 +5,9 @@ import ProjectDetail from "./ProjectDetail.astro";
 
 /**
  * The modal behind every Work card: a native `<dialog>` with one detail article per
- * project. Behaviour lives in scripts/project-dialog.ts.
+ * project. On wide screens it is a centred panel; below `md` it is a bottom sheet with a
+ * grip that can be dragged down to dismiss. Behaviour lives in scripts/project-dialog.ts
+ * and scripts/sheet-drag.ts.
  */
 interface Props {
   projects: CollectionEntry<"projects">[];
@@ -19,35 +21,50 @@ const at = (index: number) =>
 <dialog
   data-project-dialog
   aria-label="Project details"
-  class="project-dialog fixed inset-0 m-0 size-full max-h-none max-w-none overflow-auto bg-ink/78 px-gutter py-5 text-sand backdrop:bg-transparent open:flex md:py-10"
+  class="project-dialog fixed inset-0 m-0 size-full max-h-none max-w-none overflow-auto overscroll-contain bg-ink/78 text-sand backdrop:bg-transparent open:flex max-md:overflow-hidden md:px-gutter md:py-10"
 >
   <canvas
     data-dialog-canvas
     aria-hidden="true"
-    class="pointer-events-none fixed inset-0 block size-full"></canvas>
+    class="project-dust pointer-events-none fixed inset-0 block size-full"
+  ></canvas>
   <div
-    class="project-panel relative m-auto flex w-full max-w-page flex-col gap-5 bg-ink/94 p-5 pt-18 shadow-[0_0_0_1px_var(--color-hairline),0_40px_120px_-20px_rgb(0_0_0/0.8)] md:p-9 md:pt-9"
+    data-dialog-panel
+    class="project-panel relative mx-auto mt-auto flex w-full max-w-page flex-col bg-ink/94 shadow-[0_0_0_1px_var(--color-hairline),0_40px_120px_-20px_rgb(0_0_0/0.8)] max-md:max-h-[calc(100dvh-2.5rem)] max-md:rounded-t-2xl md:mb-auto"
   >
-    <button
-      type="button"
-      data-dialog-close
-      autofocus
-      aria-label="Close project"
-      class="absolute top-3 right-3 z-3 flex size-11 cursor-pointer items-center justify-center rounded-full text-sand shadow-[inset_0_0_0_1px_var(--color-hairline)] transition-[color,box-shadow] duration-300 hover:text-caramel hover:shadow-[inset_0_0_0_1px_var(--color-caramel)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-caramel md:top-5 md:right-5"
+    <div
+      data-sheet-handle
+      class="relative flex h-16 shrink-0 touch-none justify-center pt-2.5 md:contents"
     >
-      <Icon name="close" />
-    </button>
-    {
-      projects.map((project, index) => (
-        <ProjectDetail
-          project={project}
-          index={index}
-          total={projects.length}
-          previous={at(index - 1)}
-          next={at(index + 1)}
-        />
-      ))
-    }
+      <span
+        aria-hidden="true"
+        class="h-1 w-10 rounded-full bg-sand/30 md:hidden"></span>
+      <button
+        type="button"
+        data-dialog-close
+        autofocus
+        aria-label="Close project"
+        class="absolute top-3 right-3 z-3 flex size-11 cursor-pointer items-center justify-center rounded-full text-sand shadow-[inset_0_0_0_1px_var(--color-hairline)] transition-[color,box-shadow] duration-300 hover:text-caramel hover:shadow-[inset_0_0_0_1px_var(--color-caramel)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-caramel md:top-5 md:right-5"
+      >
+        <Icon name="close" />
+      </button>
+    </div>
+    <div
+      data-dialog-body
+      class="min-h-0 overflow-y-auto overscroll-contain px-5 pt-2 pb-5 md:overflow-visible md:p-9"
+    >
+      {
+        projects.map((project, index) => (
+          <ProjectDetail
+            project={project}
+            index={index}
+            total={projects.length}
+            previous={at(index - 1)}
+            next={at(index + 1)}
+          />
+        ))
+      }
+    </div>
   </div>
 </dialog>
 
@@ -74,8 +91,64 @@ const at = (index: number) =>
     opacity: 1;
   }
 
+  /*
+   * Below md the panel is a bottom sheet: it slides up over a fading shade rather than
+   * the whole dialog fading, and follows the finger while dragged. scripts/sheet-drag.ts
+   * sets --sheet-offset (px) and --sheet-drag (0–1) during a drag.
+   */
+  @media (width < 48rem) {
+    .project-dialog {
+      opacity: 1;
+      background-color: transparent;
+      transition: background-color 0.5s ease;
+    }
+
+    .project-dialog.is-open {
+      background-color: color-mix(
+        in srgb,
+        var(--color-ink) calc(78% * (1 - var(--sheet-drag, 0))),
+        transparent
+      );
+    }
+
+    .project-dust {
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    .project-dialog.is-open .project-dust {
+      opacity: calc(1 - var(--sheet-drag, 0));
+    }
+
+    .project-panel {
+      translate: 0 100%;
+      opacity: 1;
+      transition: translate 0.5s var(--ease-sheet);
+    }
+
+    .project-dialog.is-open .project-panel {
+      translate: 0 var(--sheet-offset, 0px);
+    }
+
+    /* Fills the gap below the sheet when it is pulled up past its rest. */
+    .project-panel::after {
+      content: "";
+      position: absolute;
+      inset: 100% 0 auto;
+      height: 100px;
+      background: inherit;
+    }
+
+    .project-dialog.is-dragging,
+    .project-dialog.is-dragging .project-dust,
+    .project-dialog.is-dragging .project-panel {
+      transition: none;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .project-dialog,
+    .project-dust,
     .project-panel {
       transition: none;
     }
