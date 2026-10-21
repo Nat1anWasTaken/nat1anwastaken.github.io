@@ -2,8 +2,7 @@
 title: "SITCON Camp 2026"
 order: 1
 year: 2026
-# TODO: add the stack
-# stack: []
+stack: [Astro, Tailwind CSS, TypeScript, GSAP, Anime.js]
 links:
   - label: Visit site
     href: https://sitcon.camp/2026

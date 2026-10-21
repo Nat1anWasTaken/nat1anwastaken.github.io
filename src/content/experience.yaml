@@ -3,7 +3,7 @@
   order: 1
   period: Now
   org: SITCON 2027
-  role: Deputy convener
+  role: Deputy convener & development team lead
   href: https://sitcon.org/2027/landing
   current: true
 - id: cerulean-labs
@@ -11,7 +11,7 @@
   period: Now
   org: Cerulean Labs
   role: Fellowship member
-  # TODO: add the Cerulean Labs URL
+  href: https://cerulean.works/
   current: true
 - id: sitcon-camp-2026
   order: 3

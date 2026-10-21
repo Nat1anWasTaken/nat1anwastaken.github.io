@@ -1,10 +1,9 @@
 ---
 title: "when2meet.app"
 order: 7
-# TODO: add the year
-# year: 2026
-# TODO: add the stack
-# stack: []
+year: 2025
+stack:
+  [SvelteKit, TypeScript, Tailwind CSS, PostgreSQL, Drizzle ORM, Better Auth]
 links:
   - label: Visit site
     href: https://when2meet.app/
@@ -34,4 +33,4 @@ screencast:
   - { screen: 3, scroll: 0, x: 742, y: 525, move: 1300, hold: 1400 }
 ---
 
-when2meet.app helps a group find a time to meet: create a meeting, set the allowed date range and time zone, in a dark or light theme.
+I built when2meet.app to cut down on the back-and-forth of scheduling meetings with my team. Create a meeting, share your availability, and find a time that works for everyone, with time-zone support and light and dark themes.

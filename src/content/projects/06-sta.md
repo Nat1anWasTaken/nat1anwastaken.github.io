@@ -1,10 +1,8 @@
 ---
 title: "S.T.A 特殊選才資源網"
 order: 6
-# TODO: add the year
-# year: 2026
-# TODO: add the stack
-# stack: []
+year: 2026
+stack: [Next.js, React, TypeScript, Tailwind CSS, Hono, Drizzle ORM]
 links:
   - label: Visit site
     href: https://sta-tw.org/

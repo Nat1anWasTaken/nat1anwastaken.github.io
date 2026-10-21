@@ -2,8 +2,7 @@
 title: "SITCON 2027 Landing"
 order: 2
 year: 2026
-# TODO: add the stack
-# stack: []
+stack: [Astro, Tailwind CSS, TypeScript]
 links:
   - label: Visit site
     href: https://sitcon.org/2027/landing

@@ -2,8 +2,7 @@
 title: "SITCON 2027 Call for Papers"
 order: 4
 year: 2026
-# TODO: add the stack
-# stack: []
+stack: [React, TypeScript, Tailwind CSS, Vite, TanStack Router]
 links:
   - label: Visit site
     href: https://sitcon.org/2027/cfp

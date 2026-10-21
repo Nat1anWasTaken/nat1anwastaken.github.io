@@ -2,8 +2,7 @@
 title: "SITCON 2027 Call for Sponsors"
 order: 3
 year: 2026
-# TODO: add the stack
-# stack: []
+stack: [Astro, TypeScript, Apache ECharts, Lenis]
 links:
   - label: Visit site
     href: https://sitcon.org/2027/cfs
