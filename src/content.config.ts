@@ -1,6 +1,7 @@
-import { defineCollection } from "astro:content";
+import { defineCollection, reference } from "astro:content";
 import { file, glob } from "astro/loaders";
 import { z } from "astro/zod";
+import { langs } from "./data/site";
 
 const projects = defineCollection({
   loader: glob({ pattern: "*.md", base: "./src/content/projects" }),
@@ -42,4 +43,26 @@ const experience = defineCollection({
   }),
 });
 
-export const collections = { projects, experience };
+const blog = defineCollection({
+  // A post is `<slug>.md(x)` or `<slug>/index.md(x)` with its images beside it.
+  // Set `slug` in the frontmatter to choose the URL yourself.
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/blog" }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      /** Shown in the post list and used as the meta description. */
+      description: z.string(),
+      pubDate: z.coerce.date(),
+      updatedDate: z.coerce.date().optional(),
+      cover: image().optional(),
+      coverAlt: z.string().optional(),
+      tags: z.array(z.string()).default([]),
+      lang: z.enum(langs).default("en"),
+      /** The same post in another language. Set it on the translation, pointing at the original. */
+      translationOf: reference("blog").optional(),
+      /** Shown by the dev server, left out of builds. */
+      draft: z.boolean().default(false),
+    }),
+});
+
+export const collections = { projects, experience, blog };

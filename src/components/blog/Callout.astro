@@ -1,0 +1,19 @@
+---
+import type { calloutKinds } from "../../lib/markdown";
+
+/**
+ * A callout for MDX posts. Markdown posts write the same aside as a directive:
+ * `:::tip[Title]` … `:::`.
+ */
+interface Props {
+  kind?: (typeof calloutKinds)[number];
+  title?: string;
+}
+
+const { kind = "note", title } = Astro.props;
+---
+
+<aside class="callout" data-callout={kind}>
+  {title && <p class="callout-title">{title}</p>}
+  <slot />
+</aside>

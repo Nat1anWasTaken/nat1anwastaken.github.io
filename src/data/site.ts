@@ -15,13 +15,17 @@ export const site = {
   alternateNames: ["Nat1anWasTaken", "nat1an"],
   description:
     "Nathan builds software, and the communities around it, in the open. Computer science student, percussionist and SITCON organiser in Taiwan.",
-  locale: "en_US",
   /** Social card shown when the site is shared, served from `public/`. */
   ogImage: {
     src: "/og.png",
     alt: "Nathan — I build software, and the communities around it, in the open.",
     width: 1200,
     height: 630,
+  },
+  blog: {
+    title: "Nathan's blog",
+    description:
+      "Notes from Nathan on building software and communities, in English and Chinese.",
   },
   email: "me@nath.tw",
   calendar: { href: "https://nath.tw/cal", label: "nath.tw/cal" },
@@ -34,12 +38,19 @@ export const site = {
     sheetId:
       "2PACX-1vQifCR1HYsHL8PHOMVp86yYKo2F3qhdj2SJXotioKZ4aaEnpgqbAvw_pdNuIJ6puOgCU6j2lpcawuoC",
   },
+  /** Root-relative, so the links also work from the blog. */
   nav: [
-    { label: "Work", href: "#work" },
-    { label: "About", href: "#about" },
-    { label: "Contact", href: "#contact" },
+    { label: "Work", href: "/#work" },
+    { label: "About", href: "/#about" },
+    { label: "Blog", href: "/blog/" },
+    { label: "Contact", href: "/#contact" },
   ],
 } as const;
+
+/** Languages posts are written in, with their Open Graph locales. */
+export const ogLocales = { en: "en_US", "zh-TW": "zh_TW" } as const;
+export type Lang = keyof typeof ogLocales;
+export const langs = Object.keys(ogLocales) as [Lang, ...Lang[]];
 
 const allSocials: SocialLink[] = [
   { label: "Email", handle: site.email, href: `mailto:${site.email}` },

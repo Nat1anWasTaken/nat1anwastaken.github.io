@@ -1,11 +1,11 @@
 ---
 import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
-import { getImage } from "astro:assets";
 import ProjectDetail from "../../components/work/ProjectDetail.astro";
 import PillButton from "../../components/ui/PillButton.astro";
 import SplitLetters from "../../components/ui/SplitLetters.astro";
 import { site } from "../../data/site";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { socialCard } from "../../lib/social-card";
 import {
   getProjects,
   projectDescription,
@@ -40,20 +40,11 @@ const { title, year, links, screens } = project.data;
 const description = projectDescription(project);
 
 /** The top of the first screenshot, cropped to a social card. */
-const card = await getImage({
-  src: screens[0],
-  width: 1200,
-  height: 630,
-  fit: "cover",
-  position: "top",
-  format: "jpg",
-});
-const image = {
-  src: card.src,
-  width: 1200,
-  height: 630,
-  alt: `${title}, the first screen of the site`,
-};
+const image = await socialCard(
+  screens[0],
+  `${title}, the first screen of the site`,
+  "top",
+);
 
 const url = new URL(Astro.url.pathname, Astro.site).href;
 const creativeWork = {
@@ -62,7 +53,7 @@ const creativeWork = {
   name: title,
   description,
   url,
-  image: new URL(card.src, Astro.site).href,
+  image: new URL(image.src, Astro.site).href,
   creator: { "@id": new URL("/#person", Astro.site).href },
   ...(year && { dateCreated: String(year) }),
   ...(links.length > 0 && { sameAs: links.map((link) => link.href) }),

@@ -1,0 +1,31 @@
+---
+import type { MarkdownHeading } from "astro";
+
+/** Links to a post's h2 and h3 headings; scripts/toc.ts marks the one being read. */
+interface Props {
+  headings: MarkdownHeading[];
+}
+
+const { headings } = Astro.props;
+const items = headings.filter(({ depth }) => depth === 2 || depth === 3);
+---
+
+{
+  items.length > 1 && (
+    <nav aria-label="On this page" data-toc class="flex flex-col gap-4">
+      <p class="font-mono text-meta text-caramel">On this page</p>
+      <ol class="flex flex-col gap-2 text-meta">
+        {items.map(({ depth, slug, text }) => (
+          <li class:list={[depth === 3 && "pl-4"]}>
+            <a
+              href={`#${slug}`}
+              class="block py-0.5 text-sand/60 transition-colors duration-300 hover:text-caramel focus-visible:text-caramel aria-[current=true]:text-sand"
+            >
+              {text}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  )
+}

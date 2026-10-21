@@ -1,0 +1,234 @@
+---
+import katexStylesheet from "katex/dist/katex.min.css?url";
+import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
+import { Image } from "astro:assets";
+import { render } from "astro:content";
+import Callout from "../../components/blog/Callout.astro";
+import TableOfContents from "../../components/blog/TableOfContents.astro";
+import PillButton from "../../components/ui/PillButton.astro";
+import RiseText from "../../components/ui/RiseText.astro";
+import SplitLetters from "../../components/ui/SplitLetters.astro";
+import { site } from "../../data/site";
+import BlogLayout from "../../layouts/BlogLayout.astro";
+import {
+  formatDate,
+  getPosts,
+  getTranslations,
+  originalId,
+  postPath,
+} from "../../lib/posts";
+import { socialCard } from "../../lib/social-card";
+
+export const getStaticPaths = (async () => {
+  const posts = await getPosts();
+  return posts.map((post, index) => ({
+    params: { id: post.id },
+    props: {
+      post,
+      // The list is newest first, so the next post along is the older one.
+      newer: posts[index - 1],
+      older: posts[index + 1],
+      translations: getTranslations(post, posts),
+    },
+  }));
+}) satisfies GetStaticPaths;
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+const { post, newer, older, translations } = Astro.props;
+const {
+  title,
+  description,
+  pubDate,
+  updatedDate,
+  cover,
+  coverAlt,
+  tags,
+  lang,
+} = post.data;
+const { Content, headings, remarkPluginFrontmatter } = await render(post);
+const { minutesRead, hasMath } = remarkPluginFrontmatter as {
+  minutesRead: number;
+  hasMath?: boolean;
+};
+
+/** The cover cropped to a social card, or one drawn from the title (pages/og). */
+const image = cover
+  ? await socialCard(cover, coverAlt ?? title)
+  : { ...site.ogImage, src: `/og/${post.id}.png`, alt: title };
+
+const postUrl = (other: typeof post) =>
+  new URL(postPath(other), Astro.site).href;
+const url = postUrl(post);
+const original = translations.find((other) => other.id === originalId(post));
+const blogPosting = {
+  "@type": "BlogPosting",
+  "@id": `${url}#post`,
+  headline: title,
+  description,
+  url,
+  mainEntityOfPage: { "@type": "WebPage", "@id": url },
+  inLanguage: lang,
+  datePublished: pubDate.toISOString(),
+  dateModified: (updatedDate ?? pubDate).toISOString(),
+  author: { "@id": new URL("/#person", Astro.site).href },
+  image: new URL(image.src, Astro.site).href,
+  ...(tags.length > 0 && { keywords: tags }),
+  ...(original
+    ? { translationOfWork: { "@id": `${postUrl(original)}#post` } }
+    : translations.length > 0 && {
+        workTranslation: translations.map((other) => ({
+          "@id": `${postUrl(other)}#post`,
+        })),
+      }),
+};
+
+const neighbours = [
+  newer && { post: newer, label: "Previous", end: false },
+  older && { post: older, label: "Next", end: true },
+].filter((neighbour) => !!neighbour);
+---
+
+<BlogLayout
+  title={`${title} — ${site.name}`}
+  {description}
+  {image}
+  article={{ published: pubDate, modified: updatedDate, tags }}
+  structuredData={[blogPosting]}
+  {lang}
+  alternates={translations.map((other) => ({
+    lang: other.data.lang,
+    href: postPath(other),
+  }))}
+>
+  {
+    /* KaTeX's stylesheet is large, so only posts with math load it. */
+    hasMath && <link slot="head" rel="stylesheet" href={katexStylesheet} />
+  }
+
+  <article class="px-gutter pt-16 pb-section">
+    <header class="flex flex-col items-start gap-8">
+      <!-- The fade lives on a wrapper because the pill sets its own transitions. -->
+      <div lang="en" class="reveal-fade" style={{ "--delay": "0.15s" }}>
+        <PillButton variant="pill" icon="arrow-left" href="/blog/">
+          All posts
+        </PillButton>
+      </div>
+      <p
+        lang="en"
+        class="reveal-fade flex flex-wrap gap-x-3 font-mono text-meta text-caramel"
+        style={{ "--delay": "0.3s" }}
+      >
+        <time datetime={pubDate.toISOString()}>{formatDate(pubDate)}</time>
+        <span aria-hidden="true">·</span>
+        <span>{minutesRead} min read</span>
+        {
+          updatedDate && (
+            <>
+              <span aria-hidden="true">·</span>
+              <span>
+                Updated{" "}
+                <time datetime={updatedDate.toISOString()}>
+                  {formatDate(updatedDate)}
+                </time>
+              </span>
+            </>
+          )
+        }
+      </p>
+      <h1 class="max-w-[22ch] text-hero font-light">
+        <RiseText delay={0.25}>{title}</RiseText>
+      </h1>
+      <p
+        class="reveal-fade max-w-[34em] text-subtitle font-light text-sand/70"
+        style={{ "--delay": "0.5s" }}
+      >
+        {description}
+      </p>
+      {
+        tags.length > 0 && (
+          <ul
+            aria-label="Tags"
+            class="reveal-fade flex flex-wrap gap-x-3 font-mono text-meta text-sand/60"
+            style={{ "--delay": "0.6s" }}
+          >
+            {tags.map((tag) => (
+              <li>#{tag}</li>
+            ))}
+          </ul>
+        )
+      }
+    </header>
+
+    {
+      cover && (
+        <Image
+          src={cover}
+          alt={coverAlt ?? ""}
+          widths={[640, 960, 1280, 1920]}
+          sizes="(min-width: 1200px) 1200px, 100vw"
+          loading="eager"
+          class="reveal-wipe mt-stack w-full rounded-sm"
+          style={{ "--delay": "0.55s" }}
+        />
+      )
+    }
+
+    <div
+      class="mt-stack grid gap-x-column gap-y-stack lg:grid-cols-[minmax(0,1fr)_240px]"
+    >
+      <div
+        class="reveal-fade prose-site prose min-w-0"
+        style={{ "--delay": "0.65s" }}
+      >
+        <Content components={{ Callout }} />
+      </div>
+      <aside class="reveal-fade max-lg:hidden" style={{ "--delay": "0.8s" }}>
+        <div class="sticky top-10">
+          <TableOfContents {headings} />
+        </div>
+      </aside>
+    </div>
+  </article>
+
+  {
+    neighbours.length > 0 && (
+      <nav
+        lang="en"
+        aria-label="More posts"
+        class="grid gap-x-column gap-y-6 px-gutter pb-section sm:grid-cols-2"
+        data-reveal
+      >
+        {neighbours.map(({ post: neighbour, label, end }, i) => (
+          <a
+            href={postPath(neighbour)}
+            data-orbit="box"
+            class:list={[
+              "group letter-wave reveal-fade flex flex-col gap-3 py-6 hairline-t focus-ring",
+              end && "sm:col-start-2 sm:items-end sm:text-right",
+            ]}
+            style={{ "--delay": `${0.2 + i * 0.1}s` }}
+          >
+            <span class="font-mono text-meta transition-colors duration-300 group-hover:text-caramel group-focus-visible:text-caramel">
+              {label}
+            </span>
+            <span lang={neighbour.data.lang}>
+              <SplitLetters
+                text={neighbour.data.title}
+                class="text-title font-light"
+              />
+            </span>
+          </a>
+        ))}
+      </nav>
+    )
+  }
+</BlogLayout>
+
+<script>
+  import { renderMermaid } from "../../scripts/mermaid";
+  import { initToc } from "../../scripts/toc";
+
+  initToc();
+  renderMermaid();
+</script>

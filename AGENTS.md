@@ -32,6 +32,14 @@ Interactive text uses one shared hover effect, the letter wave. Reuse it instead
 - **Small labels:** meta lines and labels next to a wave, such as dates or "View project", get a plain colour change instead, using `transition-colors duration-300 group-hover:text-caramel` with a matching `group-focus-visible` or `group-focus-within` variant.
 - **Accessibility:** every hover state also needs a keyboard-focus state. The wave already covers `:focus-visible` and turns its motion off under `prefers-reduced-motion`. Keep `<SplitLetters>` as is: it hides the split letters from screen readers and gives them the full text instead.
 
+## Blog
+
+- Posts live in `src/content/blog/` as `.md` or `.mdx` (or `<slug>/index.md` with images beside it) and are served at `/blog/<slug>/`. The schema is in `src/content.config.ts`. A post in two languages is two separate posts: give the translation `lang: zh-TW` and `translationOf: <original slug>`, which links the pair with `hreflang` and structured data. The page takes the post's language, but the interface stays in English and is marked `lang="en"`.
+- Markdown runs through Sätteri, Astro's default processor, configured in `astro.config.mjs`. Our plugins in `src/lib/markdown.ts` render KaTeX math, Mermaid blocks, `:::note`/`:::tip`/`:::warning`/`:::danger` callouts, heading anchors and reading time. Sätteri plugins aren't remark/rehype plugins, so don't add those.
+- Don't enable Sätteri's `rawHtml` feature: it drops the meta from code blocks (`title="…"`, `{2}`). Add generated HTML as structured nodes instead (see `fromHtml`).
+- Posts without a `cover` get a social card drawn at build time by `src/lib/og.ts` (satori and sharp), served at `/og/<slug>.png`. It fetches its fonts from Google Fonts, cut down to the card's text, so builds need network access.
+- Drafts (`draft: true`) only show on the dev server. `writing-guide.mdx` is a draft that uses every feature, so use it to check style changes.
+
 ## Commands
 
 | Command                       | Purpose                                                                                  |
