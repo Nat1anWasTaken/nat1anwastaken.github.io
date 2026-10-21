@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Personal site built with Astro and deployed to GitHub Pages at https://nat1anwastaken.github.io.
+Personal site built with Astro and deployed to GitHub Pages at https://nath.tw.
 
 ## Tech stack
 
