@@ -21,10 +21,17 @@ export const site = {
 
 const allSocials: SocialLink[] = [
   { label: "Email", handle: site.email, href: `mailto:${site.email}` },
-  // TODO: fill in the Instagram, Discord and Telegram links. Entries with an empty href are not rendered.
-  { label: "Instagram", handle: "", href: "" },
-  { label: "Discord", handle: "", href: "" },
-  { label: "Telegram", handle: "", href: "" },
+  {
+    label: "Instagram",
+    handle: "@nat1an.xyz",
+    href: "https://www.instagram.com/nat1an.xyz",
+  },
+  {
+    label: "Discord",
+    handle: "@nat1an",
+    href: "https://discord.com/users/731146912975159427",
+  },
+  { label: "Telegram", handle: "@Nathan2045", href: "https://t.me/Nathan2045" },
   {
     label: "GitHub",
     handle: "Nat1anWasTaken",
