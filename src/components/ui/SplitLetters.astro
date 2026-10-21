@@ -2,7 +2,7 @@
 /**
  * Text split into one span per letter, so a script can light letters one at a time
  * by toggling `.is-lit` on `[data-letter]`, or a `.letter-wave` ancestor can light them
- * in order on hover. The split copy is hidden from assistive tech, which reads the
+ * in order on hover (styles in global.css). The split copy is hidden from assistive tech, which reads the
  * visually hidden full text instead.
  */
 interface Props {
@@ -28,11 +28,7 @@ const words = text
           {w > 0 && " "}
           <span class="inline-block whitespace-nowrap">
             {word.map(({ letter, i }) => (
-              <span
-                data-letter
-                style={{ "--i": i }}
-                class="inline-block transition-colors duration-500 motion-reduce:transition-none [&.is-lit]:animate-lift [&.is-lit]:text-caramel motion-reduce:[&.is-lit]:animate-none"
-              >
+              <span data-letter style={{ "--i": i }}>
                 {letter}
               </span>
             ))}

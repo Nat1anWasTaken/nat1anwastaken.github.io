@@ -170,6 +170,18 @@
   }
 
   /*
+   * <SplitLetters> letters, styled here rather than per span because pages hold
+   * hundreds of them. Scripts light a letter by toggling `.is-lit`.
+   */
+  [data-letter] {
+    @apply inline-block transition-colors duration-500 motion-reduce:transition-none;
+  }
+
+  [data-letter].is-lit {
+    @apply animate-lift text-caramel motion-reduce:animate-none;
+  }
+
+  /*
    * Letter wave: the Experience rows' hover effect for any link. Its <SplitLetters>
    * lift and warm one after another, in the order given by their `--i`.
    */
