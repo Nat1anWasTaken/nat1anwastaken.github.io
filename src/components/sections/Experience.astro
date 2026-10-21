@@ -1,0 +1,30 @@
+---
+import { getCollection } from "astro:content";
+import ExperienceRow from "../experience/ExperienceRow.astro";
+import Section from "../ui/Section.astro";
+import SectionHeading from "../ui/SectionHeading.astro";
+
+const positions = (await getCollection("experience")).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+---
+
+<Section scene="experience" id="experience" aria-labelledby="experience-title">
+  <SectionHeading id="experience-title">Experience</SectionHeading>
+
+  <ol aria-label="Positions" class="flex flex-col gap-2" data-reveal>
+    {
+      positions.map(({ data }, i) => (
+        <ExperienceRow entry={data} delay={0.35 + i * 0.1} />
+      ))
+    }
+  </ol>
+</Section>
+
+<script>
+  import { ExperienceScene } from "../../scripts/scenes/experience";
+
+  document
+    .querySelectorAll<HTMLElement>('[data-scene="experience"]')
+    .forEach((el) => new ExperienceScene(el).start());
+</script>
