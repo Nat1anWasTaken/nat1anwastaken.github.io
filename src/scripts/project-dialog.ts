@@ -1,5 +1,4 @@
 import { prefersReducedMotion } from "../lib/particles/ticker";
-import { replayReveal } from "./reveal";
 import { Scene } from "./scene";
 import { workDust } from "./scenes/work";
 import { mountScreencasts, type Screencast } from "./screencast";
@@ -99,7 +98,6 @@ export class ProjectDialog {
     this.current = index;
     this.screencasts[index]?.forEach((screencast) => screencast.restart());
     this.dialog.scrollTop = 0;
-    replayReveal(article);
 
     // The focused prev/next button was just hidden; keep focus on its twin.
     if (stepping) {

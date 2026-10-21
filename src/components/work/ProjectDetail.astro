@@ -9,10 +9,10 @@ import Screencast from "./Screencast.astro";
 
 /**
  * One project's page inside the project dialog: screencast, description, facts, links,
- * and buttons to the neighbouring projects. Hidden until the dialog shows it; its
- * reveals replay each time (scripts/project-dialog.ts). With `standalone`, it is the
- * main content of the project's own page instead: shown, titled with the page's `<h1>`,
- * and linking to the neighbouring projects' pages.
+ * and buttons to the neighbouring projects. Hidden until the dialog shows it, and
+ * already revealed (`.is-in`), since the dialog's own transition is its entrance. With
+ * `standalone`, it is the main content of the project's own page instead: shown, titled
+ * with the page's `<h1>`, revealed on load, and linking to the neighbouring projects' pages.
  */
 interface Props {
   project: CollectionEntry<"projects">;
@@ -62,7 +62,7 @@ const fadeDelay = { "--delay": `${DELAY + FADE_OFFSET}s` };
   data-reveal={standalone ? "" : undefined}
   aria-labelledby={titleId}
   hidden={!standalone}
-  class="flex flex-col gap-8"
+  class:list={["flex flex-col gap-8", !standalone && "is-in"]}
 >
   <div class="flex flex-wrap items-start gap-x-column gap-y-8">
     <div class="reveal-wipe min-w-0 flex-[999_1_560px]" style={wipeDelay}>

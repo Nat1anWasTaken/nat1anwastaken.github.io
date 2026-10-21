@@ -25,10 +25,3 @@ export function initReveal(root: ParentNode = document) {
   // Wait a frame so the hidden state paints before the first reveal.
   requestAnimationFrame(() => targets.forEach((el) => observer.observe(el)));
 }
-
-/** Replays the reveal transitions inside `el`, e.g. when a dialog shows new content. */
-export function replayReveal(el: HTMLElement) {
-  el.classList.remove("is-in");
-  void el.offsetWidth;
-  requestAnimationFrame(() => el.classList.add("is-in"));
-}
