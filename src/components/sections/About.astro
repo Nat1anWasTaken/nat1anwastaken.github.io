@@ -1,0 +1,100 @@
+---
+import type { LineIcon } from "../../lib/particles/shapes/icons";
+import RiseText from "../ui/RiseText.astro";
+import Section from "../ui/Section.astro";
+import SectionHeading from "../ui/SectionHeading.astro";
+
+interface Pillar {
+  title: string;
+  /** The particle icon drawn in the pillar's anchor (see scripts/scenes/about.ts). */
+  icon: LineIcon;
+  points: string[];
+}
+
+const pillars: Pillar[] = [
+  {
+    title: "Computer Science",
+    icon: "code",
+    points: [
+      "Chung Yuan Christian University",
+      "Information and Computer Engineering, first year",
+      "Coding since 5th grade, on GitHub since 7th",
+      "Open source by default",
+    ],
+  },
+  {
+    title: "Percussion",
+    icon: "drum",
+    points: [
+      "Playing for 14 years",
+      // TODO: replace these two placeholders with the instruments and the ensemble or band.
+      "[Instruments you play]",
+      "[Ensemble or band]",
+    ],
+  },
+  {
+    title: "Community",
+    icon: "people",
+    points: [
+      "SITCON 2027 · Deputy convener, dev team lead",
+      "SITCON Camp 2026 · Course & activities lead",
+      "SITCON 2026 · Agenda team, speaker",
+    ],
+  },
+];
+---
+
+<Section scene="about" id="about" aria-labelledby="about-title">
+  <SectionHeading id="about-title">About</SectionHeading>
+
+  <p class="max-w-[30em] text-lede font-light" data-reveal>
+    <RiseText delay={0.25}>
+      I study computer science in Taiwan, have been playing percussion for 14
+      years, and spend much of my time helping organize student communities.
+      <span class="text-accent"
+        >A little bit of everything, all in one place.</span
+      >
+    </RiseText>
+  </p>
+
+  <ul
+    aria-label="What I do"
+    class="flex flex-wrap gap-x-column gap-y-10"
+    data-reveal
+  >
+    {
+      pillars.map((pillar, i) => (
+        <li
+          data-pillar
+          class="reveal-fade flex min-w-0 flex-[1_1_300px] flex-col gap-5 pt-6 hairline-t"
+          style={{ "--delay": `${(0.45 + i * 0.1).toFixed(2)}s` }}
+        >
+          <div class="flex items-start justify-between">
+            <span aria-hidden="true" class="text-meta">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <span
+              data-figure={pillar.icon}
+              aria-hidden="true"
+              class="size-[clamp(88px,8vw,116px)] flex-none"
+            />
+          </div>
+          <h3 class="text-title font-light">{pillar.title}.</h3>
+          <ul class="flex flex-col gap-1 text-meta">
+            {pillar.points.map((point) => (
+              <li>{point}</li>
+            ))}
+          </ul>
+        </li>
+      ))
+    }
+  </ul>
+</Section>
+
+<script>
+  import { AboutScene } from "../../scripts/scenes/about";
+
+  document
+    .querySelectorAll<HTMLElement>('[data-scene="about"]')
+    .forEach((el) => new AboutScene(el).start());
+</script>
