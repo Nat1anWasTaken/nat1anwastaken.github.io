@@ -1,0 +1,138 @@
+---
+title: 中原大學的 iLearning 太拉了，所以我做了一個 MCP
+description: 我受夠了在 iLearning 裡翻找課程更新，所以寫了一個 MCP 伺服器，讓 ChatGPT 和 Claude 替我翻。
+pubDate: 2026-10-22
+tags: [projects, MCP, CYCU, Rust]
+lang: zh-TW
+translationOf: ilearning-mcp
+---
+
+import { Image } from "astro:assets";
+import conversation from "./ilearning-mcp/chatgpt-linear-algebra.jpg";
+import details from "./ilearning-mcp/chatgpt-course-details.jpg";
+
+我只是想知道這門課要做什麼。
+
+對一所大學的學習平台來說，這應該是個很合理的要求。但不知怎麼的，它變成了打開課程、在一堆檔案裡往下滑、再看一眼討論區，最後還得點開一份 PDF，因為答案可能寫在裡面。
+
+每門課都這樣來一遍，下週再來一遍。
+
+我受夠了，所以做了 [ilearning-mcp](https://github.com/Nat1anWasTaken/ilearning-mcp)。它讓我可以直接問 ChatGPT 或 Claude 我的課程怎麼了，由它們替我去 iLearning 裡翻。標題寫得有點誇張，說穿了，我只是想少開幾個分頁。
+
+## 歡迎來到 iLearning 2.0
+
+中原大學用的是 [iLearning 2.0](https://ilearning.cycu.edu.tw/)，一套客製化過的 Moodle。老師把教材、公告、作業和成績放在上面，學生用學校的 Microsoft 365 帳號登入。
+
+資訊都在那裡，煩的是把重要的那幾塊找出來。
+
+拿我的線性代數來說。頁面上方的討論區裡有考試公告；評分方式和課程介紹是一份 PPT 加一份 PDF，放在 Ch0 底下。再往下，上課投影片和錄影並排擺著，錄影的檔名長得像 `2026-10-15 14-10-08`。還有歷屆考古題和補考題庫，用 Word 檔裝著。
+
+那標示為「本週」的區塊呢？是空的。教材是照章節整理在頁面的其他地方。
+
+這些東西沒有哪一項難到找不到，但加在一起，就把「線性代數最近怎麼了？」這麼簡單的問題變成一項小型研究：我得判斷哪些檔案重要、哪則公告還有效，以及某個日期是不是只寫在文件裡，而沒有登進行事曆。
+
+老實說，這很爛。我想把這些力氣拿去弄懂線性代數。
+
+## 已經有人做了更好的 App
+
+被這件事煩到的學生顯然不只我一個。[iCYCU](https://apps.apple.com/be/app/icycu-ilearning-itouch/id6755237637) 是一款非官方、由學生開發的 App，把 iLearning 和 iTouch 整合在一起，有課程瀏覽、作業、公告、成績和即將到期的事項。
+
+這很實用，我也不想假裝它只是一張課表。但我真正想要幫忙的部分是「讀」。瀏覽教材的方式再好，我還是得一份份打開，再自己想清楚它們對這週代表什麼。
+
+如果答案分散在一則公告、一份課程大綱和一個作業頁面裡，拼起來的還是我。
+
+那就讓 AI 來做這一段吧。
+
+## 給它一個可以看的地方
+
+ChatGPT 不會因為我好聲好氣地問，就知道我的私人課程裡有什麼。它需要拿得到真正的資料。
+
+MCP 就是用在這裡。Model Context Protocol 讓 AI 用戶端有辦法發現並呼叫工具。我的伺服器提供 `list_courses`、`get_course_contents`、`list_assignments`、`read_file` 這類工具，用戶端可以找到對的課程、檢視內容、讀取相關檔案，再用結果來回答我。
+
+以查課程近況來說，這可能表示先找到線性代數，查它的作業和行事曆事件，再讀公告和課程大綱。我不必先把那些頁面一一收集起來貼進對話。
+
+伺服器本身不跑語言模型。它只負責取資料；要看什麼、怎麼解釋，由 ChatGPT 或 Claude 裡的模型決定。
+
+## Moodle 本來就有 API
+
+在介面底下，iLearning 開著 Moodle 的 mobile web service。比起用自動化去點遍每個課程頁面，這是好得多的起點。
+
+後端我用 Rust 寫，主要分成兩塊：一個和 iLearning 溝通的 Moodle 函式庫，以及一個負責 MCP、驗證和儀表板 API 的 Axum 伺服器。MCP 端點用 `rmcp` 走 Streamable HTTP。另外有一個 React 儀表板，讓學生連結帳號、接上用戶端、檢視工具呼叫紀錄，帳號和工作階段資料則存在 Postgres。
+
+大部分工具都是把現有的 Moodle 操作包起來。比方說 `get_course_contents` 呼叫的就是 `core_course_get_contents`。伺服器保留課程區塊、活動 ID、連結和檔案，這些是代理人後續呼叫會用到的，再把一些雜訊修掉。
+
+過程裡有幾個很「Moodle」的細節。巢狀參數要攤成 `courseids[0]` 這種表單欄位；API 錯誤可能帶著 HTTP 200 回來，所以光看狀態碼不夠，回應內容裡還是可能藏著例外。
+
+檔案需要另外處理。如果用戶端沒辦法通過驗證去下載，一條 PDF 連結幫不上什麼忙。`read_file` 會用學生的 iLearning token 下載檔案，並從 PDF、DOCX、PPTX、XLSX 和支援的文字格式裡抽出文字。抽不出來的格式，包括舊的 `.doc` 和 `.ppt`，它可以回傳一條一小時後失效的下載連結，而且連結不會洩漏 Moodle token。
+
+這對這門課很重要：不少有用的資訊都住在附件裡。
+
+## 登入是最彆扭的部分
+
+這裡有兩條獨立的連線要處理：把學生的 iLearning 帳號連結到我的伺服器，以及讓 AI 用戶端使用這個連結。
+
+第一條，中原用的是 Microsoft 365 SSO，Moodle 慣常的帳號密碼換 token 端點在這裡派不上用場，所以我改走 Moodle 行動 App 的登入流程。
+
+儀表板會打開 iLearning 的行動版啟動頁。學生用 Microsoft 登入後，把「點此啟動 App」的連結複製下來，貼回儀表板。這條連結裡帶著行動版憑證，我的伺服器會確認它屬於這次登入嘗試，向 iLearning 驗證帳號，再把 token 用 AES-256-GCM 加密後存起來。
+
+沒錯，把連結複製回網站很彆扭，這是整個流程裡最不優雅的一段。至少 Microsoft 的密碼留在 Microsoft 的登入流程裡，行動版 token 也不會出現在對話中。
+
+再來是 AI 用戶端的連線。我把自己 Telegram MCP 專案裡的 OAuth 授權伺服器程式碼拿來重用，它支援探索中繼資料、動態用戶端註冊、client ID metadata document，以及帶 PKCE 的授權碼流程。PKCE 把授權碼交換綁在發起登入的那個用戶端上。
+
+實際用起來，用戶端會開啟一個同意頁面，學生按下核准，用戶端就拿到我 MCP 伺服器的憑證。伺服器再依這份授權找到學生連結的 iLearning 帳號，ChatGPT 不需要碰到學生的 Moodle token。
+
+每個已連接的用戶端都有一個工作階段，可以從儀表板中斷。另外還有一份活動紀錄，讓我看得到哪些工具被呼叫、有沒有成功。
+
+更新 token 有個惱人的陷阱：iLearning 一次只允許一個網頁登入。一般的 API 呼叫不會動到瀏覽器的工作階段，但更新時用到的網頁登入會把學生從 iLearning 登出。所以伺服器只在已知的到期時間前後嘗試更新，而不是每次請求都做。要是沒辦法更新，它會請學生重新連結帳號。
+
+有一點值得說清楚：伺服器也有寫入工具，包括繳交作業和回覆討論區。它們帶有描述其效果的 MCP 註解，但確認動作發生在用戶端；目前伺服器並沒有對已連接的工作階段另外強制唯讀權限。
+
+## 連接 AI 用戶端
+
+遠端端點是：
+
+```text
+https://ilearning-mcp.nath.tw/mcp
+```
+
+先透過[儀表板](https://ilearning-mcp.nath.tw/)連結帳號，之後的設定依用戶端而定。
+
+**ChatGPT** 要開啟開發者模式，新增自訂 MCP 應用程式，填入端點、選擇 OAuth，完成登入和同意流程，再在對話裡啟用這個應用程式。可用的設定依帳號和工作區而異，OpenAI 維護著[開發者模式的說明](https://help.openai.com/en/articles/12584461-developer-mode-and-full-mcp-connectors-in-chatgpt)。
+
+**Claude** 則是在連接器設定裡新增自訂連接器，填入同一個端點。可以用它公開的 OAuth 身分或自動註冊，接著連線並核准請求。伺服器兩種都支援，所以不用手動複製 client secret。Anthropic 的[連接器指南](https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp)有目前介面的說明。
+
+**Claude Code** 先[新增 HTTP 伺服器](https://code.claude.com/docs/en/mcp)，再在 Claude Code 裡執行 `/mcp` 進行驗證：
+
+```sh
+claude mcp add --transport http ilearning https://ilearning-mcp.nath.tw/mcp
+```
+
+其他用戶端需要支援走 Streamable HTTP 的遠端 MCP，以及伺服器的 OAuth 流程。功能列表裡寫著「支援 MCP」，不代表整條連線都接得起來。
+
+## 「線性代數最近怎麼了？」
+
+這是 2026 年 10 月 22 日一段真實的 ChatGPT 對話。我用繁體中文問，因為我平常就是這樣處理課程的：
+
+> 幫我看一下線性代數最近有什麼要注意的
+
+整個提示就這一句。
+
+<Image
+  src={conversation}
+  alt="一句關於線性代數的繁體中文提問，下方是 ChatGPT 對已結束的考試和新上傳教材的整理。"
+/>
+
+ChatGPT 找到了正確的課程，指出第一次考試已經考完，並點出 10 月 20 日上傳的第二、三、四章教材，還附上投影片和第二次考試補考題庫的連結。我沒有給它課程 ID、沒有說出任何檔名，也沒有要它照著清單檢查。
+
+<Image
+  src={details}
+  alt="ChatGPT 回報沒有正式列出的作業，並指出有一則小考成績公告，但無法取得內文。"
+/>
+
+它也找到一則小考成績公告，但讀不到內文。作業查詢的結果是空的，而回答裡做了一個有用的區分：這不代表老師沒有在課堂上口頭出作業。
+
+這些截圖是實際回覆的節錄，只裁到對話的部分。保留來源連結仍然有必要：當它讀不到某則公告時，我得自己去看。一個語氣篤定、卻編出考試日期的回答，比所有那些點擊都更糟。
+
+但能夠問一句話就拿回相關的課程資訊，對我來說已經很有用。接下來我可以請它解釋投影片裡的某個部分，或是幫我把它剛找到的教材一路讀下去。
+
+線性代數還是得自己學。至少，找課程大綱不用再算進作業裡了。
