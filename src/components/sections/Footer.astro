@@ -12,10 +12,6 @@ const navigate = [
   { label: "Contact", href: "#contact" },
   { label: "Back to top", href: "#top" },
 ];
-const contacts = [
-  { term: "Calendar", label: site.calendar.label, href: site.calendar.href },
-  { term: "Email", label: site.email, href: `mailto:${site.email}` },
-];
 
 const external = (href: string) =>
   isExternal(href) ? { target: "_blank", rel: "noopener" } : {};
@@ -70,22 +66,20 @@ const large = "text-subtitle font-light";
           }
         </ul>
       </div>
-      <div class="flex w-56 flex-col gap-4">
+      <div class="flex flex-col gap-4">
         <h2 class={heading}>Get in touch</h2>
-        <dl class="flex flex-col gap-4">
+        <!-- Two columns, so the list stays no taller than Navigate and clears the name. -->
+        <ul class:list={["grid grid-cols-2 gap-x-10 gap-y-1", large]}>
           {
-            contacts.map(({ term, label, href }) => (
-              <div>
-                <dt class="text-meta">{term}</dt>
-                <dd class={large}>
-                  <a {href} class={link} {...external(href)}>
-                    <SplitLetters text={label} />
-                  </a>
-                </dd>
-              </div>
+            socialLinks.map(({ label, href }) => (
+              <li>
+                <a {href} class={link} {...external(href)}>
+                  <SplitLetters text={label} />
+                </a>
+              </li>
             ))
           }
-        </dl>
+        </ul>
       </div>
     </div>
   </div>
