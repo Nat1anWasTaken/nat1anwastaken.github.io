@@ -16,11 +16,16 @@ export function initReveal(root: ParentNode = document) {
     (entries) => {
       for (const entry of entries) {
         if (!entry.isIntersecting) continue;
+        // An element over ~8 viewports tall (a long post on a phone) can never be
+        // 12% visible, so anything taller than the viewport reveals on entry.
+        const viewport = entry.rootBounds?.height ?? window.innerHeight;
+        const tall = entry.boundingClientRect.height > viewport;
+        if (entry.intersectionRatio < 0.12 && !tall) continue;
         entry.target.classList.add("is-in");
         observer.unobserve(entry.target);
       }
     },
-    { threshold: 0.12 },
+    { threshold: [0, 0.12] },
   );
   // Wait a frame so the hidden state paints before the first reveal.
   requestAnimationFrame(() => targets.forEach((el) => observer.observe(el)));
