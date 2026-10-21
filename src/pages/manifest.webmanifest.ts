@@ -11,5 +11,15 @@ export const GET: APIRoute = () =>
     display: "browser",
     background_color: "#0d0b09",
     theme_color: "#0d0b09",
-    icons: [{ src: "/favicon.svg", type: "image/svg+xml", sizes: "any" }],
+    icons: [
+      { src: "/favicon.svg", type: "image/svg+xml", sizes: "any" },
+      { src: "/icon-192.png", type: "image/png", sizes: "192x192" },
+      { src: "/icon-512.png", type: "image/png", sizes: "512x512" },
+      {
+        src: "/icon-maskable-512.png",
+        type: "image/png",
+        sizes: "512x512",
+        purpose: "maskable",
+      },
+    ],
   });
