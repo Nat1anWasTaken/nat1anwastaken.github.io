@@ -1,0 +1,27 @@
+# `order` sets the display order, newest first. `current` lights the timeline node.
+- id: sitcon-2027
+  order: 1
+  period: Now
+  org: SITCON 2027
+  role: Deputy convener
+  href: https://sitcon.org/2027/landing
+  current: true
+- id: cerulean-labs
+  order: 2
+  period: Now
+  org: Cerulean Labs
+  role: Fellowship member
+  # TODO: add the Cerulean Labs URL
+  current: true
+- id: sitcon-camp-2026
+  order: 3
+  period: "2026"
+  org: SITCON Camp 2026
+  role: Course & activities team lead
+  href: https://sitcon.camp/2026
+- id: sitcon-2026
+  order: 4
+  period: "2026"
+  org: SITCON 2026
+  role: Agenda team member & speaker
+  href: https://sitcon.org/2026
