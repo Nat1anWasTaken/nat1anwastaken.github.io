@@ -6,20 +6,36 @@ import { site } from "../data/site";
 /**
  * GitHub Pages serves this page for any unknown path, which makes it the hook for
  * short links: the script looks the path up in the short-link sheet and redirects,
- * and only shows the page itself when nothing matches.
+ * and only shows the 404 itself when nothing matches. Until then the page shows a
+ * plain "Redirecting…" screen, so a short link never flashes a 404 first.
  */
 ---
 
 <BaseLayout title={`Page not found — ${site.name}`} noindex>
-  <!-- Hide the page while the lookup runs, so a short link doesn't flash a 404 first.
-       The timeout is a fallback in case the lookup script never runs. -->
+  <!-- `data-lookup` switches to the redirect screen while the lookup runs and holds
+       the 404 title to restore if it fails. The timeout is a fallback in case the
+       lookup script never runs. -->
   <script is:inline>
-    document.documentElement.dataset.lookup = "";
-    setTimeout(() => delete document.documentElement.dataset.lookup, 10000);
+    const root = document.documentElement;
+    root.dataset.lookup = document.title;
+    document.title = "Redirecting…";
+    setTimeout(() => {
+      if (root.dataset.lookup === undefined) return;
+      document.title = root.dataset.lookup;
+      delete root.dataset.lookup;
+    }, 10000);
   </script>
 
+  <div
+    class="hidden min-h-svh items-center justify-center px-gutter in-data-lookup:flex"
+  >
+    <p class="font-mono text-meta text-sand/70" aria-live="polite">
+      Redirecting<span data-destination></span>…
+    </p>
+  </div>
+
   <main
-    class="flex min-h-svh flex-col items-start justify-center gap-8 px-gutter py-section in-data-lookup:invisible"
+    class="flex min-h-svh flex-col items-start justify-center gap-8 px-gutter py-section in-data-lookup:hidden"
   >
     <p class="font-mono text-meta text-caramel">404</p>
     <h1 class="max-w-[15ch] text-hero font-light">
@@ -52,11 +68,22 @@ import { site } from "../data/site";
     return link && destination(link, location.search);
   }
 
+  function showNotFound() {
+    const root = document.documentElement;
+    document.title = root.dataset.lookup ?? document.title;
+    delete root.dataset.lookup;
+  }
+
   try {
     const url = await lookup();
-    if (url) location.replace(url);
-    else delete document.documentElement.dataset.lookup;
+    if (url) {
+      const label = document.querySelector("[data-destination]");
+      if (label) label.textContent = ` to ${new URL(url).host}`;
+      location.replace(url);
+    } else {
+      showNotFound();
+    }
   } catch {
-    delete document.documentElement.dataset.lookup;
+    showNotFound();
   }
 </script>
