@@ -1,7 +1,10 @@
 ---
 import type { MarkdownHeading } from "astro";
 
-/** Links to a post's h2 and h3 headings; scripts/toc.ts marks the one being read. */
+/**
+ * Links to a post's h2 and h3 headings; scripts/toc.ts marks the one being read
+ * and slides the caramel indicator on the rail to it.
+ */
 interface Props {
   headings: MarkdownHeading[];
 }
@@ -14,12 +17,21 @@ const items = headings.filter(({ depth }) => depth === 2 || depth === 3);
   items.length > 1 && (
     <nav aria-label="On this page" data-toc class="flex flex-col gap-4">
       <p class="font-mono text-meta text-caramel">On this page</p>
-      <ol class="flex flex-col gap-2 text-meta">
+      <ol class="relative flex flex-col gap-1 pl-4 text-meta">
+        <span
+          aria-hidden="true"
+          class="absolute inset-y-0 left-0 w-px bg-sand/10"
+        />
+        <span
+          aria-hidden="true"
+          data-toc-indicator
+          class="absolute top-0 left-0 h-(--toc-h) w-px translate-y-(--toc-y) bg-caramel opacity-0 transition-[translate,height,opacity] duration-700 ease-expo data-active:opacity-100 motion-reduce:transition-none"
+        />
         {items.map(({ depth, slug, text }) => (
           <li class:list={[depth === 3 && "pl-4"]}>
             <a
               href={`#${slug}`}
-              class="block py-0.5 text-sand/60 transition-colors duration-300 hover:text-caramel focus-visible:text-caramel aria-[current=true]:text-sand"
+              class="block py-1 text-sand/50 transition-colors duration-500 hover:text-caramel focus-visible:text-caramel aria-[current=true]:text-sand"
             >
               {text}
             </a>

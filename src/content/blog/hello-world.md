@@ -1,7 +1,7 @@
 ---
 title: Hello, world
 description: The first post on this blog, about what I'll write here and why.
-pubDate: 2026-10-22
+pubDate: 2026-10-21
 tags: [meta]
 ---
 
@@ -20,5 +20,3 @@ Posts will be in English, Chinese, or both. This one is also [in Chinese](/blog/
 ## Following along
 
 There's an [RSS feed](/rss.xml) if you use a feed reader. If something here is useful or wrong, [let me know](/#contact).
-
-See you in the next post.
