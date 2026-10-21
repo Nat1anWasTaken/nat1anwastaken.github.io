@@ -1,0 +1,39 @@
+---
+import { Font } from "astro:assets";
+import { site } from "../data/site";
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title = site.title, description = site.description } = Astro.props;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#0d0b09" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    <title>{title}</title>
+    <Font cssVariable="--font-geist" preload />
+    <Font cssVariable="--font-geist-mono" />
+    <Font cssVariable="--font-archivo" preload />
+  </head>
+  <body id="top">
+    <slot />
+    <script>
+      import { initPills } from "../scripts/pill";
+      import { initReveal } from "../scripts/reveal";
+
+      initReveal();
+      initPills();
+    </script>
+  </body>
+</html>
