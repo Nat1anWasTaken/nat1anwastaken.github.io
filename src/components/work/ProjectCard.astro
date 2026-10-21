@@ -1,12 +1,14 @@
 ---
 import type { CollectionEntry } from "astro:content";
+import { projectPath } from "../../lib/projects";
 import Icon from "../ui/Icon.astro";
 import SplitLetters from "../ui/SplitLetters.astro";
 import Screencast from "./Screencast.astro";
 
 /**
- * A project in the Work grid: its screencast, number, year and title. The title button
- * stretches over the whole card and opens the project dialog (`data-project-open`).
+ * A project in the Work grid: its screencast, number, year and title. The title link
+ * stretches over the whole card and points to the project's page; with scripts, it
+ * opens the project dialog instead (`data-project-open`).
  */
 interface Props {
   project: CollectionEntry<"projects">;
@@ -42,7 +44,7 @@ const FADE_OFFSET = 0.35;
     class:list={["reveal-wipe", wide && "min-w-0 flex-[999_1_640px]"]}
     style={{ "--delay": `${delay + WIPE_OFFSET}s` }}
   >
-    <Screencast screens={screens} keyframes={screencast} />
+    <Screencast {title} screens={screens} keyframes={screencast} />
   </div>
   <div
     class:list={[
@@ -56,14 +58,14 @@ const FADE_OFFSET = 0.35;
       {year && <span>{year}</span>}
     </div>
     <h3 class="text-title font-light">
-      <button
-        type="button"
+      <a
+        href={projectPath(project)}
         data-project-open={index}
         aria-label={`${title}: open project`}
         class="cursor-pointer text-left focus-ring after:absolute after:inset-0 after:z-2 after:content-['']"
       >
         <SplitLetters text={title} />
-      </button>
+      </a>
     </h3>
     <span
       aria-hidden="true"

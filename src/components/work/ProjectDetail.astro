@@ -1,5 +1,6 @@
 ---
 import { render, type CollectionEntry } from "astro:content";
+import { projectPath } from "../../lib/projects";
 import Icon from "../ui/Icon.astro";
 import PillButton from "../ui/PillButton.astro";
 import RiseText from "../ui/RiseText.astro";
@@ -9,7 +10,9 @@ import Screencast from "./Screencast.astro";
 /**
  * One project's page inside the project dialog: screencast, description, facts, links,
  * and buttons to the neighbouring projects. Hidden until the dialog shows it; its
- * reveals replay each time (scripts/project-dialog.ts).
+ * reveals replay each time (scripts/project-dialog.ts). With `standalone`, it is the
+ * main content of the project's own page instead: shown, titled with the page's `<h1>`,
+ * and linking to the neighbouring projects' pages.
  */
 interface Props {
   project: CollectionEntry<"projects">;
@@ -18,14 +21,29 @@ interface Props {
   total: number;
   previous: CollectionEntry<"projects">;
   next: CollectionEntry<"projects">;
+  standalone?: boolean;
 }
 
-const { project, index, total, previous, next } = Astro.props;
+const {
+  project,
+  index,
+  total,
+  previous,
+  next,
+  standalone = false,
+} = Astro.props;
 const { title, year, stack, links, screens, screencast } = project.data;
 const { Content } = await render(project);
 
 const pad = (n: number) => String(n).padStart(2, "0");
 const titleId = `project-${project.id}-title`;
+const Heading = standalone ? "h1" : "h2";
+const Step = standalone ? "a" : "button";
+/** The prev/next controls: links between pages, or buttons the dialog handles. */
+const step = (to: CollectionEntry<"projects">, direction: number) =>
+  standalone
+    ? { href: projectPath(to) }
+    : { type: "button" as const, "data-project-step": String(direction) };
 const facts = [
   { term: "Year", value: year?.toString() },
   { term: "Built with", value: stack?.join(", ") },
@@ -40,14 +58,15 @@ const fadeDelay = { "--delay": `${DELAY + FADE_OFFSET}s` };
 ---
 
 <article
-  data-project-detail
+  data-project-detail={standalone ? undefined : ""}
+  data-reveal={standalone ? "" : undefined}
   aria-labelledby={titleId}
-  hidden
+  hidden={!standalone}
   class="flex flex-col gap-8"
 >
   <div class="flex flex-wrap items-start gap-x-column gap-y-8">
     <div class="reveal-wipe min-w-0 flex-[999_1_560px]" style={wipeDelay}>
-      <Screencast screens={screens} keyframes={screencast} />
+      <Screencast {title} screens={screens} keyframes={screencast} />
     </div>
     <div
       class="flex max-w-aside min-w-0 flex-[1_1_280px] flex-col gap-5 md:pr-12"
@@ -55,9 +74,9 @@ const fadeDelay = { "--delay": `${DELAY + FADE_OFFSET}s` };
       <span class="reveal-fade text-meta" style={fadeDelay}>
         {pad(index + 1)} / {pad(total)}
       </span>
-      <h2 id={titleId} class="text-title font-light">
+      <Heading id={titleId} class="text-title font-light">
         <RiseText delay={DELAY}>{title}</RiseText>
-      </h2>
+      </Heading>
       <div class="reveal-fade flex flex-col gap-5" style={fadeDelay}>
         <div class="flex flex-col gap-4 text-body font-light">
           <Content />
@@ -92,26 +111,21 @@ const fadeDelay = { "--delay": `${DELAY + FADE_OFFSET}s` };
     aria-label="More projects"
     class="flex items-end justify-between gap-8 pt-5 hairline-t"
   >
-    <button
-      type="button"
-      data-project-step="-1"
-      class="project-step letter-wave items-start"
-    >
+    <Step {...step(previous, -1)} class="project-step letter-wave items-start">
       <span class="project-step-label">
         <Icon name="arrow-left" size={20} strokeWidth={1.6} /> Previous
       </span>
       <SplitLetters text={previous.data.title} class="project-step-title" />
-    </button>
-    <button
-      type="button"
-      data-project-step="1"
+    </Step>
+    <Step
+      {...step(next, 1)}
       class="project-step letter-wave items-end text-right"
     >
       <span class="project-step-label">
         Next project <Icon name="arrow-right" size={20} strokeWidth={1.6} />
       </span>
       <SplitLetters text={next.data.title} class="project-step-title" />
-    </button>
+    </Step>
   </nav>
 </article>
 

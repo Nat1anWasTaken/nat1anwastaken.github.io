@@ -1,0 +1,101 @@
+---
+import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
+import { getImage } from "astro:assets";
+import ProjectDetail from "../../components/work/ProjectDetail.astro";
+import PillButton from "../../components/ui/PillButton.astro";
+import SplitLetters from "../../components/ui/SplitLetters.astro";
+import { site } from "../../data/site";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import {
+  getProjects,
+  projectDescription,
+  projectSlug,
+} from "../../lib/projects";
+
+/**
+ * Each project's own page: the same detail the Work dialog shows, at a URL search
+ * engines can index and people can share.
+ */
+export const getStaticPaths = (async () => {
+  const projects = await getProjects();
+  const at = (index: number) =>
+    projects[(index + projects.length) % projects.length]!;
+
+  return projects.map((project, index) => ({
+    params: { slug: projectSlug(project) },
+    props: {
+      project,
+      index,
+      total: projects.length,
+      previous: at(index - 1),
+      next: at(index + 1),
+    },
+  }));
+}) satisfies GetStaticPaths;
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+const { project } = Astro.props;
+const { title, year, links, screens } = project.data;
+const description = projectDescription(project);
+
+/** The top of the first screenshot, cropped to a social card. */
+const card = await getImage({
+  src: screens[0],
+  width: 1200,
+  height: 630,
+  fit: "cover",
+  position: "top",
+  format: "jpg",
+});
+const image = {
+  src: card.src,
+  width: 1200,
+  height: 630,
+  alt: `${title}, the first screen of the site`,
+};
+
+const url = new URL(Astro.url.pathname, Astro.site).href;
+const creativeWork = {
+  "@type": "CreativeWork",
+  "@id": `${url}#work`,
+  name: title,
+  description,
+  url,
+  image: new URL(card.src, Astro.site).href,
+  creator: { "@id": new URL("/#person", Astro.site).href },
+  ...(year && { dateCreated: String(year) }),
+  ...(links.length > 0 && { sameAs: links.map((link) => link.href) }),
+};
+---
+
+<BaseLayout
+  title={`${title} — ${site.name}`}
+  {description}
+  {image}
+  structuredData={[creativeWork]}
+>
+  <header
+    class="flex flex-wrap items-center justify-between gap-x-8 gap-y-4 px-gutter pt-7"
+  >
+    <a
+      href="/"
+      class="letter-wave inline-flex min-h-11 items-center text-body font-medium focus-ring"
+      ><SplitLetters text={site.name} /></a
+    >
+    <PillButton variant="pill" icon="arrow-left" href="/#work">
+      All work
+    </PillButton>
+  </header>
+  <main class="px-gutter py-section">
+    <div class="mx-auto max-w-page">
+      <ProjectDetail {...Astro.props} standalone />
+    </div>
+  </main>
+</BaseLayout>
+
+<script>
+  import { mountScreencasts } from "../../scripts/screencast";
+
+  mountScreencasts(document);
+</script>

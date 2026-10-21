@@ -1,13 +1,11 @@
 ---
-import { getCollection } from "astro:content";
+import { getProjects } from "../../lib/projects";
 import ProjectCard from "../work/ProjectCard.astro";
 import ProjectDialog from "../work/ProjectDialog.astro";
 import Section from "../ui/Section.astro";
 import SectionHeading from "../ui/SectionHeading.astro";
 
-const projects = (await getCollection("projects")).sort(
-  (a, b) => a.data.order - b.data.order,
-);
+const projects = await getProjects();
 const [featured, ...rest] = projects;
 
 /** The cards after the featured one, two to a row. */
@@ -66,12 +64,23 @@ const ROW_STAGGER = 0.12;
       },
     });
 
-    for (const button of section.querySelectorAll<HTMLButtonElement>(
+    // The cards link to each project's own page; a plain click opens the dialog instead,
+    // while modified clicks (new tab, new window) still follow the link.
+    for (const link of section.querySelectorAll<HTMLAnchorElement>(
       "[data-project-open]",
     )) {
-      button.addEventListener("click", () =>
-        dialog.open(Number(button.dataset.projectOpen), button),
-      );
+      link.addEventListener("click", (event) => {
+        if (
+          event.button !== 0 ||
+          event.metaKey ||
+          event.ctrlKey ||
+          event.shiftKey ||
+          event.altKey
+        )
+          return;
+        event.preventDefault();
+        dialog.open(Number(link.dataset.projectOpen), link);
+      });
     }
   }
 </script>

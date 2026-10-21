@@ -8,11 +8,13 @@ import type { CollectionEntry } from "astro:content";
  * keyframes; with no script (or reduced motion) it shows the first screenshot.
  */
 interface Props {
+  /** The project's name, for the screenshots' alt text. */
+  title: string;
   screens: CollectionEntry<"projects">["data"]["screens"];
   keyframes: CollectionEntry<"projects">["data"]["screencast"];
 }
 
-const { screens, keyframes } = Astro.props;
+const { title, screens, keyframes } = Astro.props;
 ---
 
 <div
@@ -29,7 +31,7 @@ const { screens, keyframes } = Astro.props;
       screens.map((screen, index) => (
         <Image
           src={screen}
-          alt=""
+          alt={`${title}, screenshot ${index + 1} of ${screens.length}`}
           width={1400}
           format="webp"
           data-screencast-shot
