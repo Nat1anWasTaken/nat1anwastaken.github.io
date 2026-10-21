@@ -4,14 +4,13 @@ import IndexedCard from "../ui/IndexedCard.astro";
 import PillButton from "../ui/PillButton.astro";
 import RiseText from "../ui/RiseText.astro";
 import Section from "../ui/Section.astro";
-import SectionHeading from "../ui/SectionHeading.astro";
 import SplitLetters from "../ui/SplitLetters.astro";
 
 const lead = "See when";
 ---
 
 <Section scene="contact" id="contact" aria-labelledby="contact-title">
-  <SectionHeading id="contact-title">Contact</SectionHeading>
+  <h2 id="contact-title" class="sr-only">Contact</h2>
 
   <div class="flex flex-col gap-5" data-reveal>
     <div class="flex flex-wrap items-center justify-between gap-x-12 gap-y-8">

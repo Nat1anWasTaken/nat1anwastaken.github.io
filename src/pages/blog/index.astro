@@ -1,0 +1,63 @@
+---
+import PostRow from "../../components/blog/PostRow.astro";
+import RiseText from "../../components/ui/RiseText.astro";
+import { site } from "../../data/site";
+import BlogLayout from "../../layouts/BlogLayout.astro";
+import { getPosts, postPath } from "../../lib/posts";
+
+const posts = await getPosts();
+const { description } = site.blog;
+
+const url = new URL("/blog/", Astro.site).href;
+const blog = {
+  "@type": "Blog",
+  "@id": `${url}#blog`,
+  url,
+  name: site.blog.title,
+  description,
+  author: { "@id": new URL("/#person", Astro.site).href },
+  blogPost: posts.map((post) => {
+    const postUrl = new URL(postPath(post), Astro.site).href;
+    return {
+      "@type": "BlogPosting",
+      "@id": `${postUrl}#post`,
+      headline: post.data.title,
+      url: postUrl,
+      datePublished: post.data.pubDate.toISOString(),
+      inLanguage: post.data.lang,
+    };
+  }),
+};
+---
+
+<BlogLayout title={`Blog — ${site.name}`} {description} structuredData={[blog]}>
+  <div class="flex flex-col gap-stack px-gutter py-section">
+    <div class="flex flex-col gap-6">
+      <h1 class="text-display font-light">
+        <RiseText delay={0.2}>Blog</RiseText>
+      </h1>
+      <p
+        class="reveal-fade max-w-[34em] text-body font-light text-sand/70"
+        style={{ "--delay": "0.45s" }}
+      >
+        {description}
+      </p>
+    </div>
+    {
+      posts.length > 0 ? (
+        <ol aria-label="Posts" class="flex flex-col" data-reveal>
+          {posts.map((post, i) => (
+            <PostRow {post} delay={0.35 + i * 0.1} />
+          ))}
+        </ol>
+      ) : (
+        <p
+          class="reveal-fade font-mono text-meta text-caramel"
+          style={{ "--delay": "0.6s" }}
+        >
+          Nothing here yet.
+        </p>
+      )
+    }
+  </div>
+</BlogLayout>

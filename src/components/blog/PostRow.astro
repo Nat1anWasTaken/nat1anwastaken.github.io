@@ -1,0 +1,49 @@
+---
+import { formatDate, postPath, type Post } from "../../lib/posts";
+import PillButton from "../ui/PillButton.astro";
+import SplitLetters from "../ui/SplitLetters.astro";
+
+/**
+ * One post in the blog list, laid out like an Experience row: date, title with the
+ * letter wave, and an arrow button the dust orbits on hover or focus.
+ */
+interface Props {
+  post: Post;
+  /** Stagger for the reveal fade, in seconds. */
+  delay?: number;
+}
+
+const { post, delay = 0 } = Astro.props;
+const { title, description, pubDate, lang } = post.data;
+---
+
+<li
+  data-post-row
+  data-orbit="capsule"
+  data-orbit-target="[data-pill]"
+  class="reveal-fade"
+  style={{ "--delay": `${delay.toFixed(2)}s` }}
+>
+  <a
+    href={postPath(post)}
+    class="group letter-wave grid grid-cols-[120px_minmax(0,1fr)_auto] items-start gap-x-column py-6 focus-ring max-sm:grid-cols-[minmax(0,1fr)_auto] max-sm:gap-y-3"
+  >
+    <time
+      datetime={pubDate.toISOString()}
+      class="pt-[0.45em] font-mono text-meta transition-colors duration-300 group-hover:text-caramel group-focus-visible:text-caramel max-sm:col-span-2 max-sm:pt-0"
+      >{formatDate(pubDate)}</time
+    >
+    <span {lang} class="flex min-w-0 flex-col gap-2">
+      <SplitLetters text={title} class="text-title font-light" />
+      <span class="max-w-[60ch] text-body font-light text-sand/70"
+        >{description}</span
+      >
+    </span>
+    <PillButton
+      variant="icon"
+      icon="arrow-right"
+      trigger="[data-post-row]"
+      class="self-center"
+    />
+  </a>
+</li>
