@@ -9,7 +9,8 @@ import { fetchShortLinks } from "../lib/shortlinks";
 export const GET: APIRoute = async ({ site }) => {
   const sitemap = new URL("sitemap-index.xml", site);
   const disallow = (await fetchShortLinks())
-    .map(({ slug }) => `Disallow: /${slug}\n`)
+    // `$` anchors the rule to the exact path; without it `/text` would also block `/texture`.
+    .map(({ slug }) => `Disallow: /${slug}$\n`)
     .join("");
 
   return new Response(
