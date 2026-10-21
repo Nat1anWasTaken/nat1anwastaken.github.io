@@ -19,7 +19,8 @@ const { scene, padded = true, class: className, ...rest } = Astro.props;
 <section
   data-scene={scene}
   class:list={[
-    "relative overflow-hidden bg-ink",
+    // `clip` rather than `hidden`, which would stop sticky children sticking.
+    "relative overflow-clip bg-ink",
     padded && "px-gutter py-section",
     className,
   ]}
