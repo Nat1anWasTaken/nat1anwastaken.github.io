@@ -1,0 +1,79 @@
+---
+import { site, socials } from "../../data/site";
+import IndexedCard from "../ui/IndexedCard.astro";
+import PillButton from "../ui/PillButton.astro";
+import RiseText from "../ui/RiseText.astro";
+import Section from "../ui/Section.astro";
+import SectionHeading from "../ui/SectionHeading.astro";
+import SplitLetters from "../ui/SplitLetters.astro";
+
+const lead = "See when";
+---
+
+<Section scene="contact" id="contact" aria-labelledby="contact-title">
+  <SectionHeading id="contact-title">Contact</SectionHeading>
+
+  <div class="flex flex-col gap-5" data-reveal>
+    <div class="flex flex-wrap items-center justify-between gap-x-12 gap-y-8">
+      <a
+        href={site.calendar.href}
+        target="_blank"
+        rel="noopener"
+        data-orbit="box"
+        class="letter-wave block min-w-0 text-statement font-light focus-ring"
+      >
+        <RiseText delay={0.25}>
+          <SplitLetters text={lead} />{" "}
+          <SplitLetters
+            text="I’m free."
+            offset={lead.replace(" ", "").length}
+            class="text-accent"
+          />
+        </RiseText>
+      </a>
+      <!-- The fade lives on a wrapper because the pill sets its own transitions. -->
+      <div class="reveal-fade" style={{ "--delay": "0.7s" }}>
+        <PillButton variant="cta" href={site.calendar.href} data-orbit="box"
+          >View my calendar</PillButton
+        >
+      </div>
+    </div>
+    <p
+      class="reveal-fade max-w-[34em] text-body font-light"
+      style={{ "--delay": "0.5s" }}
+    >
+      My schedule is public at <span class="font-mono text-[0.85em]"
+        >{site.calendar.label}</span
+      >. Find an open slot, then email or message me with a time that works for
+      you.
+    </p>
+  </div>
+
+  <ul
+    aria-label="Elsewhere"
+    class="reveal-fade grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-x-column gap-y-8"
+    style={{ "--delay": "0.55s" }}
+    data-reveal
+  >
+    {
+      socials.map(({ label, handle, href }, i) => (
+        <li>
+          <IndexedCard
+            index={i + 1}
+            title={label}
+            caption={handle}
+            {href}
+            data-orbit="box"
+          />
+        </li>
+      ))
+    }
+  </ul>
+</Section>
+
+<script>
+  import { ContactScene } from "../../scripts/scenes/contact";
+
+  const root = document.querySelector<HTMLElement>('[data-scene="contact"]');
+  if (root) new ContactScene(root).start();
+</script>
