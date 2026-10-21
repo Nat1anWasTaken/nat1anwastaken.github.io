@@ -8,27 +8,62 @@ interface Props {
   description?: string;
   /** Keep the page out of search results, e.g. the 404 page. */
   noindex?: boolean;
+  /** Social card for this page; defaults to the site's. */
+  image?: { src: string; width: number; height: number; alt: string };
+  /** Extra schema.org nodes for this page, added to the site-wide graph. */
+  structuredData?: Record<string, unknown>[];
 }
 
 const {
   title = site.title,
   description = site.description,
   noindex = false,
+  image = site.ogImage,
+  structuredData = [],
 } = Astro.props;
 
+const home = new URL("/", Astro.site).href;
 const canonical = new URL(Astro.url.pathname, Astro.site);
-const ogImage = new URL(site.ogImage.src, Astro.site);
+const ogImage = new URL(image.src, Astro.site);
 
-const person = {
+const schema = {
   "@context": "https://schema.org",
-  "@type": "Person",
-  name: site.name,
-  url: new URL("/", Astro.site).href,
-  email: `mailto:${site.email}`,
-  description: site.description,
-  sameAs: socials
-    .filter((link) => isExternal(link.href))
-    .map((link) => link.href),
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": `${home}#website`,
+      url: home,
+      name: site.name,
+      description: site.description,
+      inLanguage: "en",
+      publisher: { "@id": `${home}#person` },
+    },
+    {
+      "@type": "Person",
+      "@id": `${home}#person`,
+      name: site.name,
+      alternateName: site.alternateNames,
+      url: home,
+      email: `mailto:${site.email}`,
+      jobTitle: site.jobTitle,
+      description: site.description,
+      address: { "@type": "PostalAddress", addressCountry: "TW" },
+      knowsLanguage: ["en", "zh-TW"],
+      affiliation: {
+        "@type": "CollegeOrUniversity",
+        name: "Chung Yuan Christian University",
+      },
+      memberOf: {
+        "@type": "Organization",
+        name: "SITCON",
+        url: "https://sitcon.org",
+      },
+      sameAs: socials
+        .filter((link) => isExternal(link.href))
+        .map((link) => link.href),
+    },
+    ...structuredData,
+  ],
 };
 ---
 
@@ -54,15 +89,15 @@ const person = {
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImage} />
-    <meta property="og:image:width" content={String(site.ogImage.width)} />
-    <meta property="og:image:height" content={String(site.ogImage.height)} />
-    <meta property="og:image:alt" content={site.ogImage.alt} />
+    <meta property="og:image:width" content={String(image.width)} />
+    <meta property="og:image:height" content={String(image.height)} />
+    <meta property="og:image:alt" content={image.alt} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
-    <meta name="twitter:image:alt" content={site.ogImage.alt} />
-    <script type="application/ld+json" set:html={JSON.stringify(person)} />
+    <meta name="twitter:image:alt" content={image.alt} />
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
 
     <Font cssVariable="--font-geist" preload />
     <Font cssVariable="--font-geist-mono" />

@@ -7,7 +7,12 @@ export interface SocialLink {
 
 export const site = {
   name: "Nathan",
-  title: "Nathan — Portfolio",
+  /** Default page title, kept under 60 characters so search results show it whole. */
+  title: "Nathan — Software Developer & SITCON Organiser in Taiwan",
+  /** Job title in the Person structured data. */
+  jobTitle: "Software developer and SITCON organiser",
+  /** Other names people search for, such as the GitHub handle. */
+  alternateNames: ["Nat1anWasTaken", "nat1an"],
   description:
     "Nathan builds software, and the communities around it, in the open. Computer science student, percussionist and SITCON organiser in Taiwan.",
   locale: "en_US",
