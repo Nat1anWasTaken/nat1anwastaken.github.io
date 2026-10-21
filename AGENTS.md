@@ -23,6 +23,15 @@ Before writing custom code, check whether Astro, Tailwind or a maintained packag
 - **Styling:** use Tailwind utilities and theme tokens. Write custom CSS only when no utility fits.
 - **Interactivity:** prefer plain `<script>` tags in `.astro` components. Add a UI framework (`astro add react`, etc.) only when a component really needs one.
 
+## Hover effects
+
+Interactive text uses one shared hover effect, the letter wave. Reuse it instead of writing new hover styles.
+
+- **Letter wave:** put `letter-wave` on the element that reacts (the link, card or row) and wrap its text in `<SplitLetters text="…" />` from `src/components/ui/SplitLetters.astro`. On hover or keyboard focus, the letters turn caramel and lift one after another. The colour lives in `src/styles/global.css`. The lift runs in `src/scripts/letter-wave.ts` with the Web Animations API, so letters settle smoothly when the pointer leaves mid-wave. Don't move it back to a CSS animation, which snaps letters down when `:hover` drops.
+- **Several pieces of text:** to carry one wave across several `<SplitLetters>` inside the same `letter-wave` element, pass each one an `offset` equal to the number of letters before it, not counting spaces. See `Contact.astro`.
+- **Small labels:** meta lines and labels next to a wave, such as dates or "View project", get a plain colour change instead, using `transition-colors duration-300 group-hover:text-caramel` with a matching `group-focus-visible` or `group-focus-within` variant.
+- **Accessibility:** every hover state also needs a keyboard-focus state. The wave already covers `:focus-visible` and turns its motion off under `prefers-reduced-motion`. Keep `<SplitLetters>` as is: it hides the split letters from screen readers and gives them the full text instead.
+
 ## Commands
 
 | Command                       | Purpose                                                                                  |
