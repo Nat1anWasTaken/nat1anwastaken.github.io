@@ -108,11 +108,13 @@ const schema = {
   <body id="top">
     <slot />
     <script>
+      import { initLetterWaves } from "../scripts/letter-wave";
       import { initPills } from "../scripts/pill";
       import { initReveal } from "../scripts/reveal";
 
       initReveal();
       initPills();
+      initLetterWaves();
     </script>
   </body>
 </html>

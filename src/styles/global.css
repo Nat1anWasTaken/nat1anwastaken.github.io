@@ -65,14 +65,6 @@
   --ease-expo: cubic-bezier(0.19, 1, 0.22, 1);
   /* Bottom sheets sliding in and out, and settling after a drag. */
   --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
-
-  --animate-lift: lift 1s var(--ease-expo) both;
-
-  @keyframes lift {
-    30% {
-      transform: translateY(-0.14em);
-    }
-  }
 }
 
 /*
@@ -182,6 +174,8 @@
   /*
    * Letter wave: the hover effect for links. Its <SplitLetters>
    * lift and warm one after another, in the order given by their `--i`.
+   * The lift runs in scripts/letter-wave.ts so it can settle when the pointer
+   * leaves mid-wave.
    */
   .letter-wave [data-letter] {
     transition-delay: calc(var(--i, 0) * 30ms);
@@ -189,8 +183,6 @@
 
   .letter-wave:is(:hover, :focus-visible, :has(:focus-visible)) [data-letter] {
     color: var(--color-caramel);
-    animation: var(--animate-lift);
-    animation-delay: calc(var(--i, 0) * 30ms);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -200,11 +192,6 @@
 
     .letter-wave [data-letter] {
       transition-delay: 0s;
-    }
-
-    .letter-wave:is(:hover, :focus-visible, :has(:focus-visible))
-      [data-letter] {
-      animation: none;
     }
 
     .reveal-rise,
