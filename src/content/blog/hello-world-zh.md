@@ -1,7 +1,7 @@
 ---
 title: 哈囉，世界
 description: 這個部落格的第一篇文章，聊聊我會在這裡寫些什麼，以及為什麼要寫。
-pubDate: 2026-10-22
+pubDate: 2026-10-21
 lang: zh-TW
 translationOf: hello-world
 tags: [meta]

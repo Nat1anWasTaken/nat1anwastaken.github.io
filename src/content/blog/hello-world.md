@@ -1,7 +1,7 @@
 ---
 title: Hello, world
 description: The first post on this blog, about what I'll write here and why.
-pubDate: 2026-10-22
+pubDate: 2026-10-21
 tags: [meta]
 ---
 
