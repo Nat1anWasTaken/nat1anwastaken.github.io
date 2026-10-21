@@ -10,6 +10,14 @@ export const site = {
   title: "Nathan — Portfolio",
   description:
     "Nathan builds software, and the communities around it, in the open. Computer science student, percussionist and SITCON organiser in Taiwan.",
+  locale: "en_US",
+  /** Social card shown when the site is shared, served from `public/`. */
+  ogImage: {
+    src: "/og.png",
+    alt: "Nathan — I build software, and the communities around it, in the open.",
+    width: 1200,
+    height: 630,
+  },
   email: "me@nath.tw",
   calendar: { href: "https://nath.tw/cal", label: "nath.tw/cal" },
   nav: [
