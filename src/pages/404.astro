@@ -1,0 +1,62 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PillButton from "../components/ui/PillButton.astro";
+import { site } from "../data/site";
+
+/**
+ * GitHub Pages serves this page for any unknown path, which makes it the hook for
+ * short links: the script looks the path up in the short-link sheet and redirects,
+ * and only shows the page itself when nothing matches.
+ */
+---
+
+<BaseLayout title={`Page not found — ${site.name}`} noindex>
+  <!-- Hide the page while the lookup runs, so a short link doesn't flash a 404 first.
+       The timeout is a fallback in case the lookup script never runs. -->
+  <script is:inline>
+    document.documentElement.dataset.lookup = "";
+    setTimeout(() => delete document.documentElement.dataset.lookup, 10000);
+  </script>
+
+  <main
+    class="flex min-h-svh flex-col items-start justify-center gap-8 px-gutter py-section in-data-lookup:invisible"
+  >
+    <p class="font-mono text-meta text-caramel">404</p>
+    <h1 class="max-w-[15ch] text-hero font-light">
+      This page <span class="text-accent">doesn't exist.</span>
+    </h1>
+    <p class="max-w-[45ch] text-body text-sand/70">
+      The link may be mistyped, or the page has moved.
+    </p>
+    <PillButton variant="cta" icon="arrow-left" href="/">Back home</PillButton>
+  </main>
+</BaseLayout>
+
+<script>
+  import {
+    destination,
+    fetchShortLinks,
+    normalizeSlug,
+  } from "../lib/shortlinks";
+
+  async function lookup() {
+    let slug: string;
+    try {
+      slug = normalizeSlug(decodeURIComponent(location.pathname));
+    } catch {
+      return undefined;
+    }
+    if (slug === "") return undefined;
+
+    const link = (await fetchShortLinks()).find((link) => link.slug === slug);
+    return link && destination(link, location.search);
+  }
+
+  try {
+    const url = await lookup();
+    if (url) location.replace(url);
+    else delete document.documentElement.dataset.lookup;
+  } catch {
+    delete document.documentElement.dataset.lookup;
+  }
+</script>

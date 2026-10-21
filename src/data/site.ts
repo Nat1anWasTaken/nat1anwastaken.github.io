@@ -20,6 +20,15 @@ export const site = {
   },
   email: "me@nath.tw",
   calendar: { href: "https://nath.tw/cal", label: "nath.tw/cal" },
+  /**
+   * Short links (nath.tw/<slug>) live in a Google Sheet published to the web as CSV.
+   * `sheetId` is the published ID (the `2PACX-…` part of the publish URL), not the
+   * spreadsheet's edit ID.
+   */
+  shortLinks: {
+    sheetId:
+      "2PACX-1vQifCR1HYsHL8PHOMVp86yYKo2F3qhdj2SJXotioKZ4aaEnpgqbAvw_pdNuIJ6puOgCU6j2lpcawuoC",
+  },
   nav: [
     { label: "Work", href: "#work" },
     { label: "About", href: "#about" },
