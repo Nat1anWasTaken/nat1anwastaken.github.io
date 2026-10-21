@@ -1,0 +1,67 @@
+---
+import Navbar from "../ui/Navbar.astro";
+import PillButton from "../ui/PillButton.astro";
+import RiseText from "../ui/RiseText.astro";
+import Section from "../ui/Section.astro";
+
+const letters = [..."NATHAN"];
+/** Stagger of the giant name's letters, in seconds. */
+const LETTER_DELAY = { start: 0.05, step: 0.07 };
+---
+
+<Section scene="hero" padded={false} data-reveal>
+  <div class="flex min-h-[calc(100svh+var(--spacing-section))] flex-col">
+    <Navbar class="reveal-fade" style={{ "--delay": "0.2s" }} />
+
+    <div
+      class="flex flex-auto flex-col items-start justify-center gap-8 px-gutter py-16"
+    >
+      <h1 class="max-w-[15ch] text-hero font-light">
+        <RiseText delay={0.2}>I build software,</RiseText>
+        <RiseText delay={0.3}>and the communities</RiseText>
+        <RiseText delay={0.4}
+          >around it — <span class="text-accent">in the open.</span></RiseText
+        >
+      </h1>
+      <!-- The fade lives on a wrapper because the pill sets its own transitions. -->
+      <div class="reveal-fade" style={{ "--delay": "0.8s" }}>
+        <PillButton
+          variant="cta"
+          icon="arrow-down"
+          href="#work"
+          data-orbit="capsule"
+        >
+          See selected work
+        </PillButton>
+      </div>
+    </div>
+
+    <div class="px-gutter pb-section">
+      <p
+        class="mb-[-0.08em] flex justify-between overflow-hidden font-display text-wordmark font-extrabold whitespace-nowrap text-accent"
+      >
+        <span class="sr-only">Nathan</span>
+        {
+          letters.map((letter, i) => (
+            <span
+              class="reveal-rise"
+              aria-hidden="true"
+              style={{
+                "--delay": `${LETTER_DELAY.start + LETTER_DELAY.step * i}s`,
+              }}
+            >
+              {letter}
+            </span>
+          ))
+        }
+      </p>
+    </div>
+  </div>
+</Section>
+
+<script>
+  import { HeroScene } from "../../scripts/scenes/hero";
+
+  const root = document.querySelector<HTMLElement>('[data-scene="hero"]');
+  if (root) new HeroScene(root).start();
+</script>
