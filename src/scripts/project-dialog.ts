@@ -2,9 +2,12 @@ import { prefersReducedMotion } from "../lib/particles/ticker";
 import { Scene } from "./scene";
 import { workDust } from "./scenes/work";
 import { mountScreencasts, type Screencast } from "./screencast";
+import { SheetDrag } from "./sheet-drag";
 
-/** Longest open/close transition (the dialog's opacity), plus a little slack. */
+/** Longest open/close transition (the dialog's opacity, or the sheet's slide), plus a little slack. */
 const CLOSE_FALLBACK = 600;
+/** Below Tailwind's `md` breakpoint the dialog is a bottom sheet. */
+const SHEET_QUERY = "(width < 48rem)";
 
 export interface ProjectDialogOptions {
   /** Called when the dialog opens (`true`) and once it has fully closed (`false`). */
@@ -15,12 +18,16 @@ export interface ProjectDialogOptions {
  * The project detail dialog (`dialog[data-project-dialog]`): a native modal holding one
  * `[data-project-detail]` article per project, of which only the current one is shown.
  * It fades in and out, steps through projects with wrap-around, locks page scroll while
- * open, returns focus to its opener, and runs its own dust behind the panel.
+ * open, returns focus to its opener, and runs its own dust behind the panel. On narrow
+ * screens it is a bottom sheet that slides up and can be dragged down to dismiss.
  */
 export class ProjectDialog {
   private readonly articles: HTMLElement[];
   private readonly screencasts: Screencast[][];
   private readonly scene: Scene | null;
+  private readonly panel: HTMLElement | null;
+  private readonly body: HTMLElement | null;
+  private readonly sheet: SheetDrag | null;
   private readonly reduced = prefersReducedMotion();
   private current = -1;
   private opener: HTMLElement | null = null;
@@ -45,6 +52,22 @@ export class ProjectDialog {
     this.scene = canvas
       ? new Scene(dialog, { canvas, dust: workDust }).start()
       : null;
+
+    this.panel = dialog.querySelector<HTMLElement>("[data-dialog-panel]");
+    this.body = dialog.querySelector<HTMLElement>("[data-dialog-body]");
+    const handle = dialog.querySelector<HTMLElement>("[data-sheet-handle]");
+    const sheetQuery = window.matchMedia(SHEET_QUERY);
+    this.sheet =
+      this.panel && this.body && handle
+        ? new SheetDrag(dialog, {
+            sheet: this.panel,
+            scroller: this.body,
+            handle,
+            active: () =>
+              sheetQuery.matches && dialog.classList.contains("is-open"),
+            onDismiss: () => this.close(),
+          })
+        : null;
     this.bind();
   }
 
@@ -98,6 +121,7 @@ export class ProjectDialog {
     this.current = index;
     this.screencasts[index]?.forEach((screencast) => screencast.restart());
     this.dialog.scrollTop = 0;
+    if (this.body) this.body.scrollTop = 0;
 
     // The focused prev/next button was just hidden; keep focus on its twin.
     if (stepping) {
@@ -111,6 +135,7 @@ export class ProjectDialog {
   private finishClose() {
     window.clearTimeout(this.closeTimer);
     this.dialog.classList.remove("is-open");
+    this.sheet?.reset();
     document.documentElement.style.overflow = "";
     this.current = -1;
     this.options.onToggle?.(false);
@@ -127,14 +152,13 @@ export class ProjectDialog {
       event.preventDefault();
       this.close();
     });
+    // The wide dialog is done closing once it has faded out; the sheet once it has slid away.
     dialog.addEventListener("transitionend", (event) => {
       const closing = !dialog.classList.contains("is-open");
-      if (
-        closing &&
-        event.target === dialog &&
-        event.propertyName === "opacity"
-      )
-        dialog.close();
+      const done =
+        (event.target === dialog && event.propertyName === "opacity") ||
+        (event.target === this.panel && event.propertyName === "translate");
+      if (closing && done) dialog.close();
     });
 
     // The dialog itself is the backdrop; its panel covers the content. Only close when the

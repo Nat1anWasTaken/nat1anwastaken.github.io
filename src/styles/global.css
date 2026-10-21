@@ -63,6 +63,8 @@
   --container-aside: 360px;
 
   --ease-expo: cubic-bezier(0.19, 1, 0.22, 1);
+  /* Bottom sheets sliding in and out, and settling after a drag. */
+  --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
 
   --animate-lift: lift 1s var(--ease-expo) both;
 
