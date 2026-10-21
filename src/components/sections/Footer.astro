@@ -1,0 +1,99 @@
+---
+import { isExternal, site, socials } from "../../data/site";
+import SplitLetters from "../ui/SplitLetters.astro";
+
+const socialLinks = [
+  { label: "Calendar", href: site.calendar.href },
+  ...socials,
+];
+const navigate = [
+  { label: "About", href: "#about" },
+  { label: "Selected work", href: "#work" },
+  { label: "Contact", href: "#contact" },
+  { label: "Back to top", href: "#top" },
+];
+const contacts = [
+  { term: "Calendar", label: site.calendar.label, href: site.calendar.href },
+  { term: "Email", label: site.email, href: `mailto:${site.email}` },
+];
+
+const external = (href: string) =>
+  isExternal(href) ? { target: "_blank", rel: "noopener" } : {};
+const link = "letter-wave focus-ring inline-flex min-h-9 items-center";
+const heading = "text-meta font-medium";
+const large = "text-subtitle font-light";
+---
+
+<footer class="relative overflow-hidden bg-ink">
+  <nav
+    aria-label="Social"
+    class="reveal-fade flex flex-wrap justify-between gap-x-8 gap-y-2 px-gutter py-4 font-mono text-meta hairline-y"
+    style={{ "--delay": "0.1s" }}
+    data-reveal
+  >
+    {
+      socialLinks.map(({ label, href }) => (
+        <a {href} class={link} {...external(href)}>
+          <SplitLetters text={label} />
+        </a>
+      ))
+    }
+  </nav>
+
+  <div
+    data-scene="footer"
+    class="relative min-h-[clamp(440px,40vw,560px)] w-full"
+  >
+    <!-- Styled with the display font so the scene can read the generated family name. -->
+    <canvas
+      data-scene-canvas
+      aria-hidden="true"
+      class="pointer-events-none absolute inset-0 block size-full font-display font-extrabold"
+    ></canvas>
+    <p class="sr-only">{site.name}</p>
+    <div
+      class="reveal-fade relative z-1 flex flex-wrap gap-x-column gap-y-10 px-gutter pt-stack"
+      style={{ "--delay": "0.25s" }}
+      data-reveal
+    >
+      <div class="flex w-56 flex-col gap-4">
+        <h2 class={heading}>Navigate</h2>
+        <ul class:list={["flex flex-col gap-1", large]}>
+          {
+            navigate.map(({ label, href }) => (
+              <li>
+                <a {href} class={link}>
+                  <SplitLetters text={label} />
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <div class="flex w-56 flex-col gap-4">
+        <h2 class={heading}>Get in touch</h2>
+        <dl class="flex flex-col gap-4">
+          {
+            contacts.map(({ term, label, href }) => (
+              <div>
+                <dt class="text-meta">{term}</dt>
+                <dd class={large}>
+                  <a {href} class={link} {...external(href)}>
+                    <SplitLetters text={label} />
+                  </a>
+                </dd>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  import { FooterScene } from "../../scripts/scenes/footer";
+
+  const root = document.querySelector<HTMLElement>('[data-scene="footer"]');
+  if (root) new FooterScene(root).start();
+</script>
