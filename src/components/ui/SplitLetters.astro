@@ -1,0 +1,45 @@
+---
+/**
+ * Text split into one span per letter, so a script can light letters one at a time
+ * by toggling `.is-lit` on `[data-letter]`, or a `.letter-wave` ancestor can light them
+ * in order on hover. The split copy is hidden from assistive tech, which reads the
+ * visually hidden full text instead.
+ */
+interface Props {
+  text: string;
+  /** Index of the first letter in the wave, to continue it across several instances. */
+  offset?: number;
+  class?: string;
+}
+
+const { text, offset = 0, class: className } = Astro.props;
+// Letters are grouped per word so long titles still wrap between words on narrow screens.
+let index = offset;
+const words = text
+  .split(" ")
+  .map((word) => Array.from(word, (letter) => ({ letter, i: index++ })));
+---
+
+<span class={className}>
+  <span data-letters aria-hidden="true">
+    {
+      words.map((word, w) => (
+        <>
+          {w > 0 && " "}
+          <span class="inline-block whitespace-nowrap">
+            {word.map(({ letter, i }) => (
+              <span
+                data-letter
+                style={{ "--i": i }}
+                class="inline-block transition-colors duration-500 motion-reduce:transition-none [&.is-lit]:animate-lift [&.is-lit]:text-caramel motion-reduce:[&.is-lit]:animate-none"
+              >
+                {letter}
+              </span>
+            ))}
+          </span>
+        </>
+      ))
+    }
+  </span>
+  <span class="sr-only">{text}</span>
+</span>

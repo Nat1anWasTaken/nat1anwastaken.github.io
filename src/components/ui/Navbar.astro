@@ -1,0 +1,35 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import { site } from "../../data/site";
+import SplitLetters from "./SplitLetters.astro";
+
+type Props = HTMLAttributes<"header">;
+
+const { class: className, ...rest } = Astro.props;
+const link = "letter-wave focus-ring inline-flex min-h-11 items-center";
+---
+
+<header
+  class:list={[
+    "flex flex-wrap items-center justify-between gap-x-8 gap-y-4 px-gutter pt-7",
+    className,
+  ]}
+  {...rest}
+>
+  <a href="#top" class:list={[link, "text-body font-medium"]}
+    ><SplitLetters text={site.name} /></a
+  >
+  <nav aria-label="Primary">
+    <ul class="flex flex-wrap gap-x-8 gap-y-1 text-control">
+      {
+        site.nav.map(({ label, href }) => (
+          <li>
+            <a {href} class={link}>
+              <SplitLetters text={label} />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+</header>

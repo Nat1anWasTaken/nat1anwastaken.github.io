@@ -1,0 +1,38 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import { isExternal } from "../../data/site";
+import Icon from "./Icon.astro";
+import SplitLetters from "./SplitLetters.astro";
+
+/** A numbered link card: "01" and an arrow, a title, and an optional mono caption. */
+interface Props extends Omit<HTMLAttributes<"a">, "href"> {
+  /** 1-based position, shown zero-padded. */
+  index: number;
+  title: string;
+  caption?: string;
+  href: string;
+}
+
+const { index, title, caption, href, class: className, ...rest } = Astro.props;
+const external = isExternal(href);
+---
+
+<a
+  {href}
+  target={external ? "_blank" : undefined}
+  rel={external ? "noopener" : undefined}
+  class:list={[
+    "group letter-wave flex flex-col gap-2.5 py-2 focus-ring",
+    className,
+  ]}
+  {...rest}
+>
+  <span
+    class="flex items-center justify-between text-meta transition-colors duration-300 group-hover:text-caramel group-focus-visible:text-caramel"
+  >
+    <span>{String(index).padStart(2, "0")}</span>
+    <Icon name="arrow-up-right" />
+  </span>
+  <SplitLetters text={title} class="text-title font-light" />
+  {caption && <span class="font-mono text-meta">{caption}</span>}
+</a>

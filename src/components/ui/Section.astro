@@ -1,0 +1,35 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+/**
+ * Shell for a full-bleed page section: dark background, gutters, and a particle
+ * canvas behind the content. The section's scene script finds the canvas via
+ * `data-scene-canvas`.
+ */
+interface Props extends HTMLAttributes<"section"> {
+  /** Name of the scene that animates this section, exposed as `data-scene`. */
+  scene: string;
+  /** Wrap the content in the standard section padding and vertical rhythm. */
+  padded?: boolean;
+}
+
+const { scene, padded = true, class: className, ...rest } = Astro.props;
+---
+
+<section
+  data-scene={scene}
+  class:list={[
+    "relative overflow-hidden bg-ink",
+    padded && "px-gutter py-section",
+    className,
+  ]}
+  {...rest}
+>
+  <canvas
+    data-scene-canvas
+    aria-hidden="true"
+    class="pointer-events-none absolute inset-0 block size-full"></canvas>
+  <div class:list={["relative z-1", padded && "flex flex-col gap-stack"]}>
+    <slot />
+  </div>
+</section>

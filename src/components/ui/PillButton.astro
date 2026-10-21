@@ -1,0 +1,134 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import Icon, { type IconName } from "./Icon.astro";
+
+/**
+ * The site's pill button. Hovering grows a dark fill from the pointer with embers
+ * streaming through it (see scripts/pill.ts).
+ *
+ * - `cta`: label with a round icon "dot" on the right, 64px tall.
+ * - `pill`: label with an inline icon, 56px tall.
+ * - `icon`: a 48px circle with just the icon.
+ *
+ * Renders an `<a>` when given `href`, otherwise a decorative `<span>` (for use inside
+ * a larger link, together with `trigger`).
+ */
+interface Props extends Omit<HTMLAttributes<"a">, "class"> {
+  variant?: "cta" | "pill" | "icon";
+  icon?: IconName;
+  /** Ancestor selector whose hover drives this pill, when the pill isn't the link itself. */
+  trigger?: string;
+  class?: string;
+}
+
+const {
+  variant = "cta",
+  icon = "arrow-up-right",
+  trigger,
+  href,
+  class: className,
+  ...rest
+} = Astro.props;
+const Tag = href ? "a" : "span";
+const external = String(href ?? "").startsWith("http");
+---
+
+<Tag
+  href={href}
+  target={external ? "_blank" : undefined}
+  rel={external ? "noopener" : undefined}
+  aria-hidden={href ? undefined : "true"}
+  data-pill
+  data-pill-trigger={trigger}
+  class:list={["pill", `pill--${variant}`, "focus-ring", className]}
+  {...rest}
+>
+  <span class="pill-fill" aria-hidden="true"><canvas></canvas></span>
+  {
+    variant === "cta" && (
+      <>
+        <span class="relative z-1">
+          <slot />
+        </span>
+        <span class="pill-dot" aria-hidden="true">
+          <Icon name={icon} />
+        </span>
+      </>
+    )
+  }
+  {
+    variant === "pill" && (
+      <span class="relative z-1 inline-flex items-center gap-2.5">
+        <slot />
+        <Icon name={icon} size={16} />
+      </span>
+    )
+  }
+  {variant === "icon" && <Icon name={icon} class="relative z-1" />}
+</Tag>
+
+<style>
+  @reference "../../styles/global.css";
+
+  .pill {
+    @apply relative isolate inline-flex shrink-0 items-center rounded-full bg-sand font-medium whitespace-nowrap text-ink;
+    transition:
+      color 0.5s ease,
+      box-shadow 0.7s ease;
+  }
+
+  .pill--cta {
+    @apply h-14 gap-4 pr-2 pl-6 text-control;
+  }
+
+  .pill--pill {
+    @apply h-12 px-5 text-control;
+  }
+
+  .pill--icon {
+    @apply size-11 justify-center;
+  }
+
+  .pill.is-on {
+    @apply text-sand;
+    box-shadow:
+      0 0 0 2px var(--color-hairline),
+      0 24px 70px -18px rgb(156 107 71 / 0.55);
+  }
+
+  /* The fill overhangs the pill by 1px so its anti-aliased edge never lines up with
+     the sand background's, which would leave a light fringe. The hairline ring above
+     is 2px for the same reason, so 1px of it still shows past the fill. */
+  .pill-fill {
+    @apply absolute -inset-px z-0 overflow-hidden rounded-[inherit] bg-ember;
+    clip-path: circle(0px at var(--cx, 50%) var(--cy, 50%));
+    transition: clip-path 0.9s var(--ease-expo);
+  }
+
+  .pill.is-on .pill-fill {
+    clip-path: circle(150% at var(--cx, 50%) var(--cy, 50%));
+  }
+
+  .pill-fill canvas {
+    @apply absolute inset-0 block size-full;
+  }
+
+  .pill-dot {
+    @apply relative z-1 flex size-10 items-center justify-center rounded-full bg-ink text-sand;
+    transition:
+      background 0.5s ease,
+      color 0.5s ease;
+  }
+
+  .pill.is-on .pill-dot {
+    @apply bg-sand text-ink;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pill,
+    .pill-fill,
+    .pill-dot {
+      transition: none;
+    }
+  }
+</style>

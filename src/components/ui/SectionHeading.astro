@@ -1,0 +1,13 @@
+---
+import RiseText from "./RiseText.astro";
+
+interface Props {
+  id: string;
+}
+
+const { id } = Astro.props;
+---
+
+<h2 {id} class="text-display font-light" data-reveal>
+  <RiseText delay={0.1}><slot /></RiseText>
+</h2>

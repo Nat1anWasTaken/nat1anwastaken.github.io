@@ -1,0 +1,21 @@
+---
+/**
+ * A line of text that rises out of a mask when its `[data-reveal]` ancestor
+ * (or the line itself, with `reveal`) scrolls into view.
+ */
+interface Props {
+  delay?: number;
+  /** Make this line its own reveal trigger instead of relying on an ancestor. */
+  reveal?: boolean;
+  class?: string;
+}
+
+const { delay = 0, reveal = false, class: className } = Astro.props;
+---
+
+<span
+  class:list={["reveal-line", className]}
+  data-reveal={reveal ? "" : undefined}
+>
+  <span class="reveal-rise" style={{ "--delay": `${delay}s` }}><slot /></span>
+</span>
