@@ -26,6 +26,7 @@ export class ProjectDialog {
   private readonly screencasts: Screencast[][];
   private readonly scene: Scene | null;
   private readonly panel: HTMLElement | null;
+  private readonly closeButton: HTMLElement | null;
   private readonly body: HTMLElement | null;
   private readonly sheet: SheetDrag | null;
   private readonly reduced = prefersReducedMotion();
@@ -54,6 +55,7 @@ export class ProjectDialog {
       : null;
 
     this.panel = dialog.querySelector<HTMLElement>("[data-dialog-panel]");
+    this.closeButton = dialog.querySelector<HTMLElement>("[data-dialog-close]");
     this.body = dialog.querySelector<HTMLElement>("[data-dialog-body]");
     const handle = dialog.querySelector<HTMLElement>("[data-sheet-handle]");
     const sheetQuery = window.matchMedia(SHEET_QUERY);
@@ -82,6 +84,9 @@ export class ProjectDialog {
       this.opener = opener ?? (document.activeElement as HTMLElement | null);
       document.documentElement.style.overflow = "hidden";
       this.dialog.showModal();
+      // The dialog takes focus on opening (it has `autofocus`), so nothing is scrolled into
+      // view while the panel is still off screen; the close button takes it from there.
+      this.closeButton?.focus({ preventScroll: true });
       this.options.onToggle?.(true);
     }
     this.show(index);

@@ -21,7 +21,8 @@ const at = (index: number) =>
 <dialog
   data-project-dialog
   aria-label="Project details"
-  class="project-dialog fixed inset-0 m-0 size-full max-h-none max-w-none overflow-auto overscroll-contain bg-ink/78 text-sand backdrop:bg-transparent open:flex max-md:overflow-hidden md:px-gutter md:py-10"
+  autofocus
+  class="project-dialog fixed inset-0 m-0 size-full max-h-none max-w-none overflow-auto overscroll-contain bg-ink/78 text-sand backdrop:bg-transparent open:flex md:px-gutter md:py-10"
 >
   <canvas
     data-dialog-canvas
@@ -42,7 +43,6 @@ const at = (index: number) =>
       <button
         type="button"
         data-dialog-close
-        autofocus
         aria-label="Close project"
         class="absolute top-3 right-3 z-3 flex size-11 cursor-pointer items-center justify-center rounded-full text-sand shadow-[inset_0_0_0_1px_var(--color-hairline)] transition-[color,box-shadow] duration-300 hover:text-caramel hover:shadow-[inset_0_0_0_1px_var(--color-caramel)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-caramel md:top-5 md:right-5"
       >
@@ -98,6 +98,12 @@ const at = (index: number) =>
    */
   @media (width < 48rem) {
     .project-dialog {
+      /*
+       * Clip, not hidden: a hidden overflow is still a scroll container, which Safari
+       * scrolls to reveal whatever gets focus while the sheet is parked below the screen,
+       * leaving the sheet stuck that far up once it slides in.
+       */
+      overflow: clip;
       opacity: 1;
       background-color: transparent;
       transition: background-color 0.5s ease;
