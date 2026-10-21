@@ -5,8 +5,8 @@ import SplitLetters from "../ui/SplitLetters.astro";
 
 /**
  * One position on the Experience timeline. Hovering or focusing the row drives its
- * arrow button and the particle thread (scripts/scenes/experience.ts), and orbits the
- * dust around the button.
+ * arrow button, its node on the particle thread (scripts/scenes/experience.ts) and the
+ * letter wave, and orbits the dust around the button.
  */
 interface Props {
   entry: CollectionEntry<"experience">["data"];
@@ -33,7 +33,7 @@ const external = href?.startsWith("http") ?? false;
     target={external ? "_blank" : undefined}
     rel={external ? "noopener" : undefined}
     class:list={[
-      "grid grid-cols-[80px_32px_minmax(0,1fr)_auto] items-start gap-x-column py-4 max-sm:grid-cols-[64px_24px_minmax(0,1fr)_auto]",
+      "letter-wave grid grid-cols-[80px_32px_minmax(0,1fr)_auto] items-start gap-x-column py-4 max-sm:grid-cols-[64px_24px_minmax(0,1fr)_auto]",
       href && "focus-ring",
     ]}
   >
