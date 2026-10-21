@@ -1,0 +1,83 @@
+---
+import type { CollectionEntry } from "astro:content";
+import Icon from "../ui/Icon.astro";
+import ProjectDetail from "./ProjectDetail.astro";
+
+/**
+ * The modal behind every Work card: a native `<dialog>` with one detail article per
+ * project. Behaviour lives in scripts/project-dialog.ts.
+ */
+interface Props {
+  projects: CollectionEntry<"projects">[];
+}
+
+const { projects } = Astro.props;
+const at = (index: number) =>
+  projects[(index + projects.length) % projects.length]!;
+---
+
+<dialog
+  data-project-dialog
+  aria-label="Project details"
+  class="project-dialog fixed inset-0 m-0 size-full max-h-none max-w-none overflow-auto bg-ink/78 px-gutter py-5 text-sand backdrop:bg-transparent open:flex md:py-10"
+>
+  <canvas
+    data-dialog-canvas
+    aria-hidden="true"
+    class="pointer-events-none fixed inset-0 block size-full"></canvas>
+  <div
+    class="project-panel relative m-auto flex w-full max-w-page flex-col gap-5 bg-ink/94 p-5 pt-18 shadow-[0_0_0_1px_var(--color-hairline),0_40px_120px_-20px_rgb(0_0_0/0.8)] md:p-9 md:pt-9"
+  >
+    <button
+      type="button"
+      data-dialog-close
+      autofocus
+      aria-label="Close project"
+      class="absolute top-3 right-3 z-3 flex size-11 cursor-pointer items-center justify-center rounded-full text-sand shadow-[inset_0_0_0_1px_var(--color-hairline)] transition-[color,box-shadow] duration-300 hover:text-caramel hover:shadow-[inset_0_0_0_1px_var(--color-caramel)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-caramel md:top-5 md:right-5"
+    >
+      <Icon name="close" />
+    </button>
+    {
+      projects.map((project, index) => (
+        <ProjectDetail
+          project={project}
+          index={index}
+          total={projects.length}
+          previous={at(index - 1)}
+          next={at(index + 1)}
+        />
+      ))
+    }
+  </div>
+</dialog>
+
+<style>
+  .project-dialog {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  .project-panel {
+    translate: 0 32px;
+    opacity: 0;
+    transition:
+      translate 1s var(--ease-expo),
+      opacity 0.6s ease;
+  }
+
+  .project-dialog.is-open {
+    opacity: 1;
+  }
+
+  .project-dialog.is-open .project-panel {
+    translate: none;
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .project-dialog,
+    .project-panel {
+      transition: none;
+    }
+  }
+</style>

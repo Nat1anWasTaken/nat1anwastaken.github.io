@@ -1,0 +1,136 @@
+---
+import { render, type CollectionEntry } from "astro:content";
+import Icon from "../ui/Icon.astro";
+import PillButton from "../ui/PillButton.astro";
+import RiseText from "../ui/RiseText.astro";
+import SplitLetters from "../ui/SplitLetters.astro";
+import Screencast from "./Screencast.astro";
+
+/**
+ * One project's page inside the project dialog: screencast, description, facts, links,
+ * and buttons to the neighbouring projects. Hidden until the dialog shows it; its
+ * reveals replay each time (scripts/project-dialog.ts).
+ */
+interface Props {
+  project: CollectionEntry<"projects">;
+  /** Position in the list, from 0. */
+  index: number;
+  total: number;
+  previous: CollectionEntry<"projects">;
+  next: CollectionEntry<"projects">;
+}
+
+const { project, index, total, previous, next } = Astro.props;
+const { title, year, stack, links, screens, screencast } = project.data;
+const { Content } = await render(project);
+
+const pad = (n: number) => String(n).padStart(2, "0");
+const titleId = `project-${project.id}-title`;
+const facts = [
+  { term: "Year", value: year?.toString() },
+  { term: "Built with", value: stack?.join(", ") },
+].filter((fact): fact is { term: string; value: string } => !!fact.value);
+
+/** Reveal timing: the title rises, the screencast wipes in, then the text fades in. */
+const DELAY = 0.05;
+const WIPE_OFFSET = 0.15;
+const FADE_OFFSET = 0.35;
+const wipeDelay = { "--delay": `${DELAY + WIPE_OFFSET}s` };
+const fadeDelay = { "--delay": `${DELAY + FADE_OFFSET}s` };
+---
+
+<article
+  data-project-detail
+  aria-labelledby={titleId}
+  hidden
+  class="flex flex-col gap-8"
+>
+  <div class="flex flex-wrap items-start gap-x-column gap-y-8">
+    <div class="reveal-wipe min-w-0 flex-[999_1_560px]" style={wipeDelay}>
+      <Screencast screens={screens} keyframes={screencast} />
+    </div>
+    <div
+      class="flex max-w-aside min-w-0 flex-[1_1_280px] flex-col gap-5 md:pr-12"
+    >
+      <span class="reveal-fade text-meta" style={fadeDelay}>
+        {pad(index + 1)} / {pad(total)}
+      </span>
+      <h2 id={titleId} class="text-title font-light">
+        <RiseText delay={DELAY}>{title}</RiseText>
+      </h2>
+      <div class="reveal-fade flex flex-col gap-5" style={fadeDelay}>
+        <div class="flex flex-col gap-4 text-body font-light">
+          <Content />
+        </div>
+        {
+          facts.length > 0 && (
+            <dl class="grid grid-cols-[88px_1fr] gap-x-5 gap-y-2 text-meta">
+              {facts.map(({ term, value }) => (
+                <>
+                  <dt>{term}</dt>
+                  <dd>{value}</dd>
+                </>
+              ))}
+            </dl>
+          )
+        }
+        {
+          links.length > 0 && (
+            <div class="flex flex-wrap gap-3">
+              {links.map(({ label, href }) => (
+                <PillButton variant="pill" href={href}>
+                  {label}
+                </PillButton>
+              ))}
+            </div>
+          )
+        }
+      </div>
+    </div>
+  </div>
+  <nav
+    aria-label="More projects"
+    class="flex items-end justify-between gap-8 pt-5 hairline-t"
+  >
+    <button
+      type="button"
+      data-project-step="-1"
+      class="project-step letter-wave items-start"
+    >
+      <span class="project-step-label">
+        <Icon name="arrow-left" size={20} strokeWidth={1.6} /> Previous
+      </span>
+      <SplitLetters text={previous.data.title} class="project-step-title" />
+    </button>
+    <button
+      type="button"
+      data-project-step="1"
+      class="project-step letter-wave items-end text-right"
+    >
+      <span class="project-step-label">
+        Next project <Icon name="arrow-right" size={20} strokeWidth={1.6} />
+      </span>
+      <SplitLetters text={next.data.title} class="project-step-title" />
+    </button>
+  </nav>
+</article>
+
+<style>
+  @reference "../../styles/global.css";
+
+  .project-step {
+    @apply flex min-h-11 max-w-[48%] cursor-pointer flex-col gap-2.5 text-sand focus-ring;
+  }
+
+  .project-step-label {
+    @apply inline-flex items-center gap-2.5 text-meta transition-colors duration-300;
+  }
+
+  .project-step:is(:hover, :focus-visible) .project-step-label {
+    @apply text-caramel;
+  }
+
+  .project-step-title {
+    @apply text-subtitle font-light;
+  }
+</style>

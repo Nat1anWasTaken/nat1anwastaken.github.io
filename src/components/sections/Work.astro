@@ -1,0 +1,77 @@
+---
+import { getCollection } from "astro:content";
+import ProjectCard from "../work/ProjectCard.astro";
+import ProjectDialog from "../work/ProjectDialog.astro";
+import Section from "../ui/Section.astro";
+import SectionHeading from "../ui/SectionHeading.astro";
+
+const projects = (await getCollection("projects")).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+const [featured, ...rest] = projects;
+
+/** The cards after the featured one, two to a row. */
+const rows = Array.from({ length: Math.ceil(rest.length / 2) }, (_, i) =>
+  rest.slice(i * 2, i * 2 + 2),
+);
+/** Reveal stagger between the two cards of a row, in seconds. */
+const ROW_STAGGER = 0.12;
+---
+
+<Section id="work" scene="work" aria-labelledby="work-title">
+  <SectionHeading id="work-title">Selected work</SectionHeading>
+  <ul class="flex flex-col gap-rows">
+    {
+      featured && (
+        <li>
+          <ProjectCard project={featured} index={0} wide />
+        </li>
+      )
+    }
+    {
+      rows.map((row, r) => (
+        <li class="flex flex-wrap gap-x-column gap-y-rows">
+          {row.map((project, i) => (
+            <ProjectCard
+              project={project}
+              index={1 + r * 2 + i}
+              delay={i * ROW_STAGGER}
+            />
+          ))}
+        </li>
+      ))
+    }
+  </ul>
+</Section>
+<ProjectDialog projects={projects} />
+
+<script>
+  import { ProjectDialog } from "../../scripts/project-dialog";
+  import { WorkScene } from "../../scripts/scenes/work";
+  import { mountScreencasts } from "../../scripts/screencast";
+
+  const section = document.querySelector<HTMLElement>("#work");
+  const dialogEl = document.querySelector<HTMLDialogElement>(
+    "dialog[data-project-dialog]",
+  );
+
+  if (section && dialogEl) {
+    const scene = new WorkScene(section).start();
+    const screencasts = mountScreencasts(section);
+    const dialog = new ProjectDialog(dialogEl, {
+      // The dialog covers the section, so stop animating what's underneath.
+      onToggle(open) {
+        scene.suspend(open);
+        screencasts.forEach((screencast) => screencast.hold(open));
+      },
+    });
+
+    for (const button of section.querySelectorAll<HTMLButtonElement>(
+      "[data-project-open]",
+    )) {
+      button.addEventListener("click", () =>
+        dialog.open(Number(button.dataset.projectOpen), button),
+      );
+    }
+  }
+</script>

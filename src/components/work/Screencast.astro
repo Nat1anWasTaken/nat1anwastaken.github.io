@@ -1,0 +1,70 @@
+---
+import { Image } from "astro:assets";
+import type { CollectionEntry } from "astro:content";
+
+/**
+ * A fake screen recording of a project: a 1400×800 "screen" of stacked screenshots,
+ * scaled to the viewport's width, with a cursor on top. scripts/screencast.ts plays the
+ * keyframes; with no script (or reduced motion) it shows the first screenshot.
+ */
+interface Props {
+  screens: CollectionEntry<"projects">["data"]["screens"];
+  keyframes: CollectionEntry<"projects">["data"]["screencast"];
+}
+
+const { screens, keyframes } = Astro.props;
+---
+
+<div
+  data-screencast
+  data-keyframes={JSON.stringify(keyframes)}
+  aria-hidden="true"
+  class="relative aspect-[1400/800] w-full overflow-hidden bg-ink"
+>
+  <div
+    data-screencast-screen
+    class="absolute top-0 left-0 h-[800px] w-[1400px] origin-top-left overflow-hidden bg-[#f4f1ea]"
+  >
+    {
+      screens.map((screen, index) => (
+        <Image
+          src={screen}
+          alt=""
+          width={1400}
+          format="webp"
+          data-screencast-shot
+          class:list={[
+            "absolute top-0 left-0 block max-w-none will-change-[transform,opacity]",
+            index > 0 && "opacity-0",
+          ]}
+        />
+      ))
+    }
+    <div
+      data-screencast-cursor
+      class="absolute top-0 left-0 z-3 size-0 will-change-transform"
+    >
+      <span
+        data-screencast-ripple
+        class="absolute -top-[22px] -left-[22px] size-11 rounded-full opacity-0 shadow-[0_0_0_2px_var(--color-caramel)]"
+      ></span>
+      <span
+        data-screencast-arrow
+        class="absolute top-0 left-0 origin-top-left drop-shadow-[0_3px_6px_rgb(13_11_9/0.45)]"
+      >
+        <svg
+          width="26"
+          height="34"
+          viewBox="0 0 26 34"
+          class="absolute -top-0.5 -left-[3px] overflow-visible"
+        >
+          <path
+            d="M3 2 L3 26 L9.2 20.4 L13.4 29.6 L17.4 27.9 L13.3 18.9 L21.5 18.9 Z"
+            class="fill-ink stroke-sand"
+            stroke-width="1.6"
+            stroke-linejoin="round"></path>
+        </svg>
+      </span>
+    </div>
+  </div>
+</div>

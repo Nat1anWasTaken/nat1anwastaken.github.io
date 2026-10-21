@@ -1,0 +1,75 @@
+---
+import type { CollectionEntry } from "astro:content";
+import Icon from "../ui/Icon.astro";
+import SplitLetters from "../ui/SplitLetters.astro";
+import Screencast from "./Screencast.astro";
+
+/**
+ * A project in the Work grid: its screencast, number, year and title. The title button
+ * stretches over the whole card and opens the project dialog (`data-project-open`).
+ */
+interface Props {
+  project: CollectionEntry<"projects">;
+  /** Position in the list, from 0. */
+  index: number;
+  /** The featured layout: screencast and details side by side. */
+  wide?: boolean;
+  /** Reveal stagger, in seconds. */
+  delay?: number;
+}
+
+const { project, index, wide = false, delay = 0 } = Astro.props;
+const { title, year, screens, screencast } = project.data;
+const number = String(index + 1).padStart(2, "0");
+
+/** The screencast wipes in first, then the details fade in. */
+const WIPE_OFFSET = 0.15;
+const FADE_OFFSET = 0.35;
+---
+
+<div
+  data-reveal
+  data-orbit="box"
+  data-orbit-target="[data-screencast]"
+  class:list={[
+    "group letter-wave relative min-w-0",
+    wide
+      ? "flex flex-wrap items-end gap-x-column gap-y-6"
+      : "flex flex-[1_1_420px] flex-col gap-6",
+  ]}
+>
+  <div
+    class:list={["reveal-wipe", wide && "min-w-0 flex-[999_1_640px]"]}
+    style={{ "--delay": `${delay + WIPE_OFFSET}s` }}
+  >
+    <Screencast screens={screens} keyframes={screencast} />
+  </div>
+  <div
+    class:list={[
+      "reveal-fade flex flex-col gap-2.5",
+      wide && "max-w-aside min-w-0 flex-[1_1_260px]",
+    ]}
+    style={{ "--delay": `${delay + FADE_OFFSET}s` }}
+  >
+    <div class="flex justify-between gap-4 text-meta">
+      <span>{number}</span>
+      {year && <span>{year}</span>}
+    </div>
+    <h3 class="text-title font-light">
+      <button
+        type="button"
+        data-project-open={index}
+        aria-label={`${title}: open project`}
+        class="cursor-pointer text-left focus-ring after:absolute after:inset-0 after:z-2 after:content-['']"
+      >
+        <SplitLetters text={title} />
+      </button>
+    </h3>
+    <span
+      aria-hidden="true"
+      class="mt-1.5 inline-flex items-center gap-2 text-meta transition-colors duration-300 group-focus-within:text-caramel group-hover:text-caramel"
+    >
+      View project <Icon name="arrow-up-right" size={16} />
+    </span>
+  </div>
+</div>
