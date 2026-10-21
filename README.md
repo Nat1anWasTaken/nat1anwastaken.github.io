@@ -1,43 +1,47 @@
-# Astro Starter Kit: Minimal
+# Nathan — nath.tw
+
+My personal site and portfolio at [nath.tw](https://nath.tw), featuring software projects, SITCON organising experience, and ways to get in touch.
+
+Built as a static site with Astro, TypeScript, and Tailwind CSS. Deployed to GitHub Pages.
+
+## Development
+
+Use Node.js 22.22.0 or later and pnpm 12 or later.
 
 ```sh
-pnpm create astro@latest -- --template minimal
+pnpm install
+pnpm astro dev --background
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+Use `pnpm astro dev status`, `pnpm astro dev logs`, and `pnpm astro dev stop` to manage the background server.
 
-## 🚀 Project Structure
+| Command             | Purpose                            |
+| :------------------ | :--------------------------------- |
+| `pnpm build`        | Build the static site into `dist/` |
+| `pnpm preview`      | Preview the production build       |
+| `pnpm check`        | Type-check Astro and TypeScript    |
+| `pnpm format`       | Format the project with Prettier   |
+| `pnpm format:check` | Check formatting without changes   |
 
-Inside of your Astro project, you'll see the following folders and files:
+Before submitting changes, run the same checks as CI:
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+```sh
+pnpm format:check && pnpm check && pnpm build
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## Content
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+- `src/components/sections/About.astro`: biography and interests.
+- `src/content/experience.yaml`: community roles and affiliations.
+- `src/content/projects/*.md`: project descriptions, years, technology stacks, links, and screencast keyframes, loaded through Astro content collections.
+- `src/assets/projects/`: project screenshots.
+- `src/data/site.ts`: site metadata, social links, contact details, and the published short-link sheet ID.
+- `src/styles/global.css`: shared styles and Tailwind theme tokens.
 
-Any static assets, like images, can be placed in the `public/` directory.
+Project stacks are based on their repositories' package manifests. The years for S.T.A (2026) and when2meet.app (2025) reflect the start of development recorded in Git history, not a claimed launch date.
 
-## 🧞 Commands
+## Deployment
 
-All commands are run from the root of the project, from a terminal:
+`.github/workflows/ci.yml` checks formatting, types, and the static build on pushes to `main` and pull requests. `.github/workflows/deploy.yml` deploys pushes to `main` to GitHub Pages using `withastro/action`.
 
-| Command                | Action                                           |
-| :--------------------- | :----------------------------------------------- |
-| `pnpm install`         | Installs dependencies                            |
-| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
-| `pnpm build`           | Build your production site to `./dist/`          |
-| `pnpm preview`         | Preview your build locally, before deploying     |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+The custom 404 page resolves short links from the published Google Sheet configured in `src/data/site.ts`. The build also reads this sheet to exclude short-link paths from `robots.txt`, so building requires network access.
