@@ -1,0 +1,29 @@
+---
+import type { ComponentProps } from "astro/types";
+import Footer from "../components/sections/Footer.astro";
+import Navbar from "../components/ui/Navbar.astro";
+import Section from "../components/ui/Section.astro";
+import BaseLayout from "./BaseLayout.astro";
+
+/** The blog's pages: the navbar and content over the blog's dust, then the footer. */
+type Props = ComponentProps<typeof BaseLayout>;
+---
+
+<BaseLayout {...Astro.props}>
+  <slot name="head" slot="head" />
+  <main>
+    <Section scene="blog" padded={false} data-reveal>
+      <!-- A post sets the page's language; the interface stays in English. -->
+      <Navbar lang="en" class="reveal-fade" style={{ "--delay": "0.2s" }} />
+      <slot />
+    </Section>
+  </main>
+  <Footer lang="en" />
+</BaseLayout>
+
+<script>
+  import { BlogScene } from "../scripts/scenes/blog";
+
+  const root = document.querySelector<HTMLElement>('[data-scene="blog"]');
+  if (root) new BlogScene(root).start();
+</script>

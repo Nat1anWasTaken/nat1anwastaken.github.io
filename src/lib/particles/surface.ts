@@ -6,6 +6,13 @@ export interface SurfaceOptions {
 
 const defaultPixelRatio = () => Math.min(devicePixelRatio || 1, 2);
 
+/** Above this height (CSS px) `tallPixelRatio` draws at 1× to keep the backing store small. */
+const TALL_CANVAS = 1600;
+
+/** For canvases behind very tall sections: trades sharpness for memory. */
+export const tallPixelRatio = (_width: number, height: number) =>
+  height > TALL_CANVAS ? 1 : defaultPixelRatio();
+
 /** A canvas whose backing store follows its CSS size, so drawing code works in CSS pixels. */
 export class Surface {
   readonly ctx: CanvasRenderingContext2D;

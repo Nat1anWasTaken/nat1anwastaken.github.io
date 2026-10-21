@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 @theme {
   --color-ink: #0d0b09;
@@ -7,6 +8,10 @@
   --color-accent: #9c6b47;
   --color-caramel: #c49a74;
   --color-hairline: rgb(196 154 116 / 0.45);
+  /* Blog accents: tip callouts and added lines, warnings, danger and removed lines. */
+  --color-moss: #9fbf8f;
+  --color-amber: #e0b15c;
+  --color-rust: #e0796b;
 
   --font-sans: var(--font-geist);
   --font-mono: var(--font-geist-mono);
@@ -65,14 +70,6 @@
   --ease-expo: cubic-bezier(0.19, 1, 0.22, 1);
   /* Bottom sheets sliding in and out, and settling after a drag. */
   --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
-
-  --animate-lift: lift 1s var(--ease-expo) both;
-
-  @keyframes lift {
-    30% {
-      transform: translateY(-0.14em);
-    }
-  }
 }
 
 /*
@@ -182,6 +179,8 @@
   /*
    * Letter wave: the hover effect for links. Its <SplitLetters>
    * lift and warm one after another, in the order given by their `--i`.
+   * The lift runs in scripts/letter-wave.ts so it can settle when the pointer
+   * leaves mid-wave.
    */
   .letter-wave [data-letter] {
     transition-delay: calc(var(--i, 0) * 30ms);
@@ -189,8 +188,6 @@
 
   .letter-wave:is(:hover, :focus-visible, :has(:focus-visible)) [data-letter] {
     color: var(--color-caramel);
-    animation: var(--animate-lift);
-    animation-delay: calc(var(--i, 0) * 30ms);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -202,11 +199,6 @@
       transition-delay: 0s;
     }
 
-    .letter-wave:is(:hover, :focus-visible, :has(:focus-visible))
-      [data-letter] {
-      animation: none;
-    }
-
     .reveal-rise,
     .reveal-fade,
     .reveal-wipe {
@@ -215,5 +207,254 @@
       opacity: 1;
       clip-path: none;
     }
+  }
+}
+
+/*
+ * Blog posts: `prose` from @tailwindcss/typography, recoloured with the site's tokens.
+ * The rest styles what Markdown generates and no utility can reach: Shiki code
+ * blocks and their transformer classes, callouts, heading anchors, math and diagrams.
+ */
+@utility prose-site {
+  /* Doubled up with `.prose` to outrank the plugin, whichever order Tailwind emits them in. */
+  &.prose {
+    --tw-prose-body: --alpha(var(--color-sand) / 82%);
+    --tw-prose-headings: var(--color-sand);
+    --tw-prose-lead: --alpha(var(--color-sand) / 70%);
+    --tw-prose-links: var(--color-caramel);
+    --tw-prose-bold: var(--color-sand);
+    --tw-prose-counters: var(--color-caramel);
+    --tw-prose-bullets: var(--color-accent);
+    --tw-prose-hr: var(--color-hairline);
+    --tw-prose-quotes: var(--color-sand);
+    --tw-prose-quote-borders: var(--color-accent);
+    --tw-prose-captions: --alpha(var(--color-sand) / 60%);
+    --tw-prose-kbd: var(--color-sand);
+    --tw-prose-kbd-shadows: 196 154 116;
+    --tw-prose-code: var(--color-caramel);
+    --tw-prose-pre-code: var(--color-sand);
+    --tw-prose-pre-bg: var(--color-ember);
+    --tw-prose-th-borders: var(--color-hairline);
+    --tw-prose-td-borders: --alpha(var(--color-caramel) / 20%);
+    max-width: 68ch;
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    letter-spacing: var(--text-body--letter-spacing);
+    font-weight: 300;
+
+    & :where(h2, h3, h4):not(:where(.not-prose *)) {
+      font-weight: 300;
+      scroll-margin-top: 2rem;
+    }
+
+    & :where(h2):not(:where(.not-prose *)) {
+      font-size: var(--text-title);
+      line-height: var(--text-title--line-height);
+      letter-spacing: var(--text-title--letter-spacing);
+    }
+
+    & :where(h3):not(:where(.not-prose *)) {
+      font-size: var(--text-subtitle);
+      line-height: var(--text-subtitle--line-height);
+      letter-spacing: var(--text-subtitle--letter-spacing);
+    }
+
+    & :where(strong, b):not(:where(.not-prose *)) {
+      font-weight: 500;
+    }
+
+    & :where(a):not(:where(.not-prose *)) {
+      font-weight: inherit;
+      text-decoration-color: var(--color-hairline);
+      text-underline-offset: 0.2em;
+    }
+
+    & :where(a:hover, a:focus-visible):not(:where(.not-prose *)) {
+      text-decoration-color: currentColor;
+    }
+
+    & :where(code):not(:where(pre *, .not-prose *)) {
+      font-weight: 400;
+      font-size: 0.875em;
+      border-radius: 0.25rem;
+      padding: 0.1em 0.35em;
+      background: --alpha(var(--color-caramel) / 12%);
+
+      &::before,
+      &::after {
+        content: none;
+      }
+    }
+
+    & :where(img):not(:where(.not-prose *)) {
+      border-radius: 0.125rem;
+    }
+
+    & :where(.contains-task-list):not(:where(.not-prose *)) {
+      padding-left: 0;
+      list-style: none;
+    }
+
+    & :where(.task-list-item input):not(:where(.not-prose *)) {
+      margin: 0 0.6em 0 0;
+      accent-color: var(--color-accent);
+    }
+
+    /* Shiki blocks: the theme's colours on the site's ember. */
+    & pre.astro-code {
+      position: relative;
+      margin-inline: calc(var(--spacing-column) * -0.5);
+      border-radius: 0.375rem;
+      box-shadow: 0 0 0 1px --alpha(var(--color-caramel) / 18%);
+      background-color: var(--color-ember) !important;
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      line-height: 1.7;
+
+      & code {
+        display: grid;
+      }
+
+      & .line {
+        padding-inline: 1.25rem;
+        margin-inline: -1.25rem;
+      }
+
+      & .highlighted {
+        background: --alpha(var(--color-caramel) / 12%);
+        box-shadow: inset 2px 0 var(--color-caramel);
+      }
+
+      & .highlighted-word {
+        border-radius: 0.2em;
+        padding: 0.05em 0.2em;
+        background: --alpha(var(--color-caramel) / 20%);
+      }
+
+      & .diff.add {
+        background: --alpha(var(--color-moss) / 12%);
+        box-shadow: inset 2px 0 --alpha(var(--color-moss) / 80%);
+      }
+
+      & .diff.remove {
+        background: --alpha(var(--color-rust) / 12%);
+        box-shadow: inset 2px 0 --alpha(var(--color-rust) / 80%);
+        opacity: 0.7;
+      }
+
+      &.has-focused .line:not(.focused) {
+        opacity: 0.35;
+        filter: blur(0.06em);
+        transition:
+          opacity 0.4s ease,
+          filter 0.4s ease;
+      }
+
+      &.has-focused:hover .line:not(.focused) {
+        opacity: 1;
+        filter: none;
+      }
+
+      &[data-title] {
+        padding-top: 3rem;
+
+        &::before {
+          content: attr(data-title);
+          position: absolute;
+          inset: 0 0 auto;
+          padding: 0.6rem 1.25rem;
+          box-shadow: inset 0 -1px --alpha(var(--color-caramel) / 18%);
+          color: var(--color-caramel);
+          font-size: var(--text-meta);
+        }
+      }
+    }
+
+    /* Mermaid source, until scripts/mermaid.ts swaps it for the diagram. */
+    & pre.mermaid {
+      display: flex;
+      justify-content: center;
+      margin-inline: 0;
+      background: none;
+      color: transparent;
+
+      &[data-processed] {
+        color: inherit;
+      }
+    }
+  }
+}
+
+@layer components {
+  /* Heading `#` links from lib/markdown.ts, shown on hover or focus. */
+  .heading-anchor {
+    margin-left: 0.4em;
+    color: var(--color-accent);
+    text-decoration: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+
+    &::after {
+      content: "#";
+    }
+
+    :is(h2, h3, h4):hover > &,
+    &:focus-visible {
+      opacity: 1;
+    }
+  }
+
+  /* `:::note` directives and the MDX <Callout>. The kind doubles as the label. */
+  .callout {
+    --callout: var(--color-caramel);
+    margin-block: 1.75em;
+    border-radius: 0.375rem;
+    padding: 1rem 1.25rem;
+    background: --alpha(var(--callout) / 8%);
+    box-shadow: inset 2px 0 var(--callout);
+
+    &::before {
+      content: attr(data-callout);
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--callout);
+      font-family: var(--font-mono);
+      font-size: var(--text-meta);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    &[data-callout="tip"] {
+      --callout: var(--color-moss);
+    }
+
+    &[data-callout="warning"] {
+      --callout: var(--color-amber);
+    }
+
+    &[data-callout="danger"] {
+      --callout: var(--color-rust);
+    }
+
+    & > :first-child,
+    & > .callout-title + * {
+      margin-top: 0;
+    }
+
+    & > :last-child {
+      margin-bottom: 0;
+    }
+
+    & > .callout-title {
+      margin-block: 0 0.5rem;
+      color: var(--color-sand);
+      font-weight: 500;
+    }
+  }
+
+  .math-display {
+    margin-block: 1.75em;
+    overflow-x: auto;
+    overflow-y: hidden;
   }
 }
