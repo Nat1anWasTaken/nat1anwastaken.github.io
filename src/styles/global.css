@@ -48,7 +48,7 @@
   --text-statement: clamp(44px, 7vw, 104px);
   --text-statement--line-height: 1;
   --text-statement--letter-spacing: -0.045em;
-  /* The justified NATHAN wordmark spans the container, so it scales with it. */
+  /* The justified NAT1AN wordmark spans the container, so it scales with it. */
   --text-wordmark: clamp(72px, 20vw, calc(var(--container-page) * 0.214));
   --text-wordmark--line-height: 0.82;
   --text-wordmark--letter-spacing: -0.04em;

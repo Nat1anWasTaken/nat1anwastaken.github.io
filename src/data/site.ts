@@ -6,26 +6,26 @@ export interface SocialLink {
 }
 
 export const site = {
-  name: "Nathan",
+  name: "Nat1an",
   /** Default page title, kept under 60 characters so search results show it whole. */
-  title: "Nathan — Software Developer & SITCON Organiser in Taiwan",
+  title: "Nat1an — Software Developer & SITCON Organiser in Taiwan",
   /** Job title in the Person structured data. */
   jobTitle: "Software developer and SITCON organiser",
   /** Other names people search for, such as the GitHub handle. */
-  alternateNames: ["Nat1anWasTaken", "nat1an"],
+  alternateNames: ["Nat1anWasTaken", "Nathan"],
   description:
-    "Nathan builds software, and the communities around it, in the open. Computer science student, percussionist and SITCON organiser in Taiwan.",
+    "Nat1an builds software, and the communities around it, in the open. Computer science student, percussionist and SITCON organiser in Taiwan.",
   /** Social card shown when the site is shared, served from `public/`. */
   ogImage: {
     src: "/og.png",
-    alt: "Nathan — I build software, and the communities around it, in the open.",
+    alt: "Nat1an — I build software, and the communities around it, in the open.",
     width: 1200,
     height: 630,
   },
   blog: {
-    title: "Nathan's blog",
+    title: "Nat1an's blog",
     description:
-      "Notes from Nathan on building software and communities, in English and Chinese.",
+      "Notes from Nat1an on building software and communities, in English and Chinese.",
   },
   email: "me@nath.tw",
   calendar: { href: "https://nath.tw/cal", label: "nath.tw/cal" },

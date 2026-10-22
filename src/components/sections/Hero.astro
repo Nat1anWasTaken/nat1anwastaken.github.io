@@ -3,8 +3,9 @@ import Navbar from "../ui/Navbar.astro";
 import PillButton from "../ui/PillButton.astro";
 import RiseText from "../ui/RiseText.astro";
 import Section from "../ui/Section.astro";
+import { site } from "../../data/site";
 
-const letters = [..."NATHAN"];
+const letters = [...site.name.toUpperCase()];
 /** Stagger of the giant name's letters, in seconds. */
 const LETTER_DELAY = { start: 0.05, step: 0.07 };
 ---
@@ -40,7 +41,7 @@ const LETTER_DELAY = { start: 0.05, step: 0.07 };
       <p
         class="mb-[-0.08em] flex justify-between overflow-hidden font-display text-wordmark font-extrabold whitespace-nowrap text-accent"
       >
-        <span class="sr-only">Nathan</span>
+        <span class="sr-only">{site.name}</span>
         {
           letters.map((letter, i) => (
             <span

@@ -16,7 +16,7 @@ import {
 } from "../../lib/particles/shapes/text";
 import { Scene } from "../scene";
 
-const WORD = [..."NATHAN"];
+const WORD = [..."NAT1AN"];
 
 /** Below this width the letters sit in one row along the bottom instead of a staircase. */
 const STAIRCASE_MIN_WIDTH = 760;
@@ -92,7 +92,7 @@ async function loadFont(font: TextFont) {
 }
 
 /**
- * The footer's "NATHAN", made of particles sampled from the glyphs. They gather from
+ * The footer's "NAT1AN", made of particles sampled from the glyphs. They gather from
  * random positions, drift gently in place, and scatter from the pointer.
  */
 export class FooterScene extends Scene {
