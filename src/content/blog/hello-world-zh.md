@@ -7,7 +7,7 @@ translationOf: hello-world
 tags: [meta]
 ---
 
-嗨，我是 Nathan，一位台灣的資工學生，也是一位打擊樂手，並在 [SITCON](https://sitcon.org) 擔任籌備工作人員。這個網站過去只用來展示我的[作品](/#work)，從今天起，它也多了一個寫字的地方。
+嗨，我是 Nat1an，一位台灣的資工學生，也是一位打擊樂手，並在 [SITCON](https://sitcon.org) 擔任籌備工作人員。這個網站過去只用來展示我的[作品](/#work)，從今天起，它也多了一個寫字的地方。
 
 ## 會寫些什麼
 

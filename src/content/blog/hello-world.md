@@ -5,7 +5,7 @@ pubDate: 2026-10-21
 tags: [meta]
 ---
 
-Hi, I'm Nathan. I'm a computer science student in Taiwan, a percussionist, and an organiser at [SITCON](https://sitcon.org). Until now this site only showed my [work](/#work). From now on it also has a place to write.
+Hi, I'm Nat1an. I'm a computer science student in Taiwan, a percussionist, and an organiser at [SITCON](https://sitcon.org). Until now this site only showed my [work](/#work). From now on it also has a place to write.
 
 ## What to expect
 
