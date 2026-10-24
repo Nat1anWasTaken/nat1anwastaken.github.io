@@ -124,6 +124,54 @@
   a {
     transition: color 0.3s ease;
   }
+
+  /*
+   * Scrollbars: a slim caramel thumb on a bare track, warming on hover.
+   * WebKit and Blink get the pseudo-elements, which allow an inset, rounded
+   * thumb; Firefox falls back to the standard properties. Blink ignores the
+   * pseudo-elements once `scrollbar-color` is set, hence the `@supports` split.
+   */
+  @supports not selector(::-webkit-scrollbar) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: --alpha(var(--color-caramel) / 35%) transparent;
+    }
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border: 3px solid transparent;
+    border-radius: 9999px;
+    background: --alpha(var(--color-caramel) / 35%) padding-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: --alpha(var(--color-caramel) / 70%);
+  }
+
+  ::-webkit-scrollbar-thumb:active {
+    background-color: var(--color-caramel);
+  }
+
+  /* Touch screens scroll by swiping, so drop the bar altogether. */
+  @media (pointer: coarse) {
+    * {
+      scrollbar-width: none;
+    }
+
+    ::-webkit-scrollbar {
+      display: none;
+    }
+  }
 }
 
 /*
